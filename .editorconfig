@@ -1,0 +1,27 @@
+# Formato consistente sin importar el editor. https://editorconfig.org
+# Casi todos los IDEs lo respetan solos (IntelliJ, VS Code con plugin, Eclipse).
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+[*.java]
+indent_size = 4
+max_line_length = 120
+
+[*.{js,jsx,ts,tsx,json,css,html,yml,yaml}]
+indent_size = 2
+
+[*.md]
+# En Markdown dos espacios al final son un salto de línea a propósito.
+trim_trailing_whitespace = false
+
+[*.{sh}]
+indent_size = 2
+
+[Makefile]
+indent_style = tab

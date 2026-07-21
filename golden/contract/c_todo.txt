@@ -1,0 +1,5 @@
+### GET /api/properties?category=0&destinationId=1&neighborhood=Centro&guests=2&bedrooms=1&maxPrice=200000&propertyType=1&sortBy=price_desc&page=1&pageSize=5
+HTTP 200
+content-type: application/json;charset=utf-8
+--- body ---
+{"items":[{"id":2,"title":"Apartamento frente al lago","category":0,"propertyType":1,"destinationId":1,"destinationName":"Bariloche","neighborhood":"Centro","price":120000.00,"priceLabel":"por noche","currency":"ARS","bedrooms":3,"bathrooms":2,"squareMeters":90.00,"landSize":"","capacity":6,"coverImageUrl":"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800","amenities":["wifi","parking","lake_view","air_conditioning"],"status":0,"isFeatured":true}],"total":1,"page":1,"pageSize":5}

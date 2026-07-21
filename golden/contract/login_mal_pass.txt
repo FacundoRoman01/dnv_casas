@@ -1,0 +1,6 @@
+### POST /api/auth/login
+### body: {"email":"admin@dnvcasas.com","password":"incorrecta"}
+HTTP 401
+content-type: application/json;charset=utf-8
+--- body ---
+{"message":"Credenciales inválidas"}

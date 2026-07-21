@@ -1,0 +1,27 @@
+# Frontend
+frontend/.env
+frontend/.env.local
+frontend/.env.production
+frontend/node_modules/
+frontend/dist/
+
+# Java / Maven
+backend-java/**/target/
+# Uploads locales (los reales van a un volumen Docker)
+backend-java/**/wwwroot/uploads/
+# El wrapper descarga el jar acá en la primera corrida
+.mvn/wrapper/maven-wrapper.jar
+
+# Docker / secrets
+.env
+
+# Backups de DB (pueden tener datos reales)
+backups/*.sql
+
+# Cache de Visual Studio (quedó del backend .NET ya eliminado)
+**/.vs/
+
+# General
+.DS_Store
+Thumbs.db
+*.log

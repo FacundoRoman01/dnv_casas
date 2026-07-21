@@ -1,0 +1,6 @@
+### PATCH /api/admin/properties/1/status
+### body: 99
+HTTP 400
+content-type: application/json;charset=utf-8
+--- body ---
+{"message":"Status inválido. Valores permitidos: 0 (Active), 1 (Paused)."}

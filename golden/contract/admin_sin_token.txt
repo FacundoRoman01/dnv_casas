@@ -1,0 +1,5 @@
+### GET /api/admin/properties
+HTTP 401
+content-type: 
+--- body ---
+

@@ -1,0 +1,1756 @@
+{
+  "info": {
+    "name": "DNV Casas API",
+    "description": "Batería completa de tests para todos los endpoints. Orden de ejecución: Auth → Public → Admin. El token JWT se guarda automáticamente en la variable `token` al hacer login.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base",
+      "value": "http://localhost:5254"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "createdPropertyId",
+      "value": ""
+    },
+    {
+      "key": "createdDestinationId",
+      "value": ""
+    },
+    {
+      "key": "createdImageId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Login — credenciales correctas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve token', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property('token');",
+                  "  pm.expect(body.token).to.be.a('string').and.not.empty;",
+                  "  pm.collectionVariables.set('token', body.token);",
+                  "});",
+                  "pm.test('Devuelve email', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.email).to.eql('admin@dnvcasas.com');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"email\": \"admin@dnvcasas.com\", \"password\": \"admin123\" }"
+            }
+          }
+        },
+        {
+          "name": "Login — password incorrecta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Mensaje de error', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"email\": \"admin@dnvcasas.com\", \"password\": \"wrongpassword\" }"
+            }
+          }
+        },
+        {
+          "name": "Login — email inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"email\": \"noexiste@test.com\", \"password\": \"admin123\" }"
+            }
+          }
+        },
+        {
+          "name": "Login — body vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 o 401', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([400, 401]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🌍 Destinos públicos",
+      "item": [
+        {
+          "name": "GET /api/destinations — lista completa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve array', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.be.an('array');",
+                  "  pm.expect(body.length).to.be.greaterThan(0);",
+                  "});",
+                  "pm.test('Cada destino tiene id y name', () => {",
+                  "  pm.response.json().forEach(d => {",
+                  "    pm.expect(d).to.have.all.keys(['id','name','country','imageUrl','propertyCount']);",
+                  "  });",
+                  "});",
+                  "pm.test('Content-Type es JSON', () => {",
+                  "  pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/destinations"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏠 Propiedades públicas",
+      "item": [
+        {
+          "name": "GET /api/properties — sin filtros",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estructura paginada correcta', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property('items');",
+                  "  pm.expect(body).to.have.property('total');",
+                  "  pm.expect(body).to.have.property('page');",
+                  "  pm.expect(body).to.have.property('pageSize');",
+                  "  pm.expect(body.items).to.be.an('array');",
+                  "  pm.expect(body.page).to.eql(1);",
+                  "});",
+                  "pm.test('Solo propiedades activas (no pausadas ni eliminadas)', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.status).to.eql(0);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro category=0 (Alquiler)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Solo alquileres', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.category).to.eql(0);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?category=0"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro category=1 (Intercambio)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Solo intercambios', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.category).to.eql(1);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?category=1"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro category=2 (Compra)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Solo compras', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.category).to.eql(2);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?category=2"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro destinationId=1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Todas del destino correcto', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.destinationId).to.eql(1);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?destinationId=1"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro maxPrice=50000",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Precio dentro del rango o nulo', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    if (p.price !== null) pm.expect(p.price).to.be.at.most(50000);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?maxPrice=50000"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro guests=6",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Capacidad suficiente', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.capacity).to.be.at.least(6);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?guests=6"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro bedrooms=2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Al menos 2 dormitorios', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.bedrooms).to.be.at.least(2);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?bedrooms=2"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro neighborhood",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve array paginado', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.items).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?neighborhood=Llao"
+          }
+        },
+        {
+          "name": "GET /api/properties — paginación page=1 pageSize=2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Máximo 2 ítems', () => {",
+                  "  pm.expect(pm.response.json().items.length).to.be.at.most(2);",
+                  "});",
+                  "pm.test('Page y pageSize correctos', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.page).to.eql(1);",
+                  "  pm.expect(body.pageSize).to.eql(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?page=1&pageSize=2"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtros combinados",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Items cumple todos los filtros', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.category).to.eql(0);",
+                  "    pm.expect(p.destinationId).to.eql(1);",
+                  "    pm.expect(p.capacity).to.be.at.least(4);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?category=0&destinationId=1&guests=4"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro sin resultados (guests muy alto)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Array vacío con filtro imposible', () => {",
+                  "  pm.expect(pm.response.json().items.length).to.eql(0);",
+                  "  pm.expect(pm.response.json().total).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?guests=9999"
+          }
+        },
+        {
+          "name": "GET /api/properties/{id} — existente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estructura completa del detalle', () => {",
+                  "  const p = pm.response.json();",
+                  "  pm.expect(p).to.have.property('id');",
+                  "  pm.expect(p).to.have.property('title');",
+                  "  pm.expect(p).to.have.property('description');",
+                  "  pm.expect(p).to.have.property('images');",
+                  "  pm.expect(p).to.have.property('amenities');",
+                  "  pm.expect(p).to.have.property('seasonPrices');",
+                  "  pm.expect(p).to.have.property('availability');",
+                  "  pm.expect(p.images).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties/2"
+          }
+        },
+        {
+          "name": "GET /api/properties/{id} — inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties/99999"
+          }
+        },
+        {
+          "name": "GET /api/properties/{id} — eliminada (soft delete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404 (no expone eliminadas)', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties/999"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro propertyType=0",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Solo el tipo correcto', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.propertyType).to.eql(0);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?propertyType=0"
+          }
+        },
+        {
+          "name": "GET /api/properties — filtro dateFrom + dateTo (excluye no disponibles)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Devuelve array (puede estar vacío si todas indisponibles)', () => {",
+                  "  pm.expect(pm.response.json().items).to.be.an('array');",
+                  "});",
+                  "pm.test('Ninguna propiedad retornada tiene días Unavailable en el rango', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    if (p.availability) {",
+                  "      const blocked = p.availability.filter(a =>",
+                  "        a.status === 2 &&",
+                  "        a.date >= '2026-12-24' &&",
+                  "        a.date <= '2026-12-28'",
+                  "      );",
+                  "      pm.expect(blocked.length).to.eql(0);",
+                  "    }",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties?dateFrom=2026-12-24&dateTo=2026-12-28"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔒 Admin — sin token (401)",
+      "item": [
+        {
+          "name": "GET /api/admin/properties — sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/admin/properties"
+          }
+        },
+        {
+          "name": "POST /api/admin/properties — sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties",
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            }
+          }
+        },
+        {
+          "name": "GET /api/admin/destinations — sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/admin/destinations"
+          }
+        },
+        {
+          "name": "GET /api/admin/properties — token inválido (JWT malformado)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401 con JWT inválido', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer esto.no.es.un.jwt.valido"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties"
+          }
+        },
+        {
+          "name": "DELETE /api/admin/images/{imageId} — sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "url": "{{base}}/api/admin/images/1"
+          }
+        },
+        {
+          "name": "PATCH /api/admin/properties/{id}/status — sin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/1/status",
+            "body": {
+              "mode": "raw",
+              "raw": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏗️ Admin — Propiedades",
+      "item": [
+        {
+          "name": "GET /api/admin/properties — lista (activas + pausadas)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Estructura paginada', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property('items');",
+                  "  pm.expect(body).to.have.property('total');",
+                  "  pm.expect(body).to.have.property('page');",
+                  "  pm.expect(body).to.have.property('pageSize');",
+                  "});",
+                  "pm.test('Ninguna propiedad Deleted (status=2) aparece en admin list', () => {",
+                  "  pm.response.json().items.forEach(p => {",
+                  "    pm.expect(p.status, 'propiedad id=' + p.id + ' tiene status Deleted').to.not.eql(2);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties"
+          }
+        },
+        {
+          "name": "GET /api/admin/properties — paginación",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Máximo 2 ítems', () => {",
+                  "  pm.expect(pm.response.json().items.length).to.be.at.most(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties?page=1&pageSize=2"
+          }
+        },
+        {
+          "name": "POST /api/admin/properties — crear propiedad completa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Devuelve la propiedad creada', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property('id');",
+                  "  pm.expect(body.title).to.eql('Casa Test Postman');",
+                  "  pm.expect(body.category).to.eql(0);",
+                  "  pm.expect(body.status).to.eql(0);",
+                  "  pm.collectionVariables.set('createdPropertyId', body.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Casa Test Postman\",\n  \"description\": \"Propiedad creada por test automático\",\n  \"category\": 0,\n  \"propertyType\": 0,\n  \"destinationId\": 1,\n  \"neighborhood\": \"Centro\",\n  \"price\": 25000,\n  \"priceLabel\": \"por noche\",\n  \"currency\": \"ARS\",\n  \"bedrooms\": 3,\n  \"bathrooms\": 2,\n  \"squareMeters\": 120,\n  \"landSize\": \"\",\n  \"capacity\": 6,\n  \"whatsAppMessage\": \"Hola, consulto por Casa Test\",\n  \"amenities\": [\"wifi\", \"parking\", \"bbq\"],\n  \"seasonPrices\": [\n    {\n      \"label\": \"Temporada alta\",\n      \"pricePerNight\": 35000,\n      \"dateFrom\": \"2026-12-15\",\n      \"dateTo\": \"2027-03-01\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /api/admin/properties — sin title → 400 (Data Annotations activos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 (Data Annotations validan title vacío)', () => pm.response.to.have.status(400));",
+                  "pm.test('Devuelve error de validación', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.errors || body.title).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"\",\"description\":\"\",\"category\":0,\"propertyType\":0,\"destinationId\":1,\"neighborhood\":\"\",\"price\":null,\"priceLabel\":\"\",\"currency\":\"ARS\",\"bedrooms\":1,\"bathrooms\":1,\"squareMeters\":null,\"landSize\":\"\",\"capacity\":1,\"whatsAppMessage\":\"\",\"amenities\":[],\"seasonPrices\":[]}"
+            }
+          }
+        },
+        {
+          "name": "POST /api/admin/properties — crear mínimo (solo campos requeridos)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Id generado', () => {",
+                  "  pm.expect(pm.response.json().id).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Casa Mínima Test\",\n  \"description\": \"Descripción mínima\",\n  \"category\": 1,\n  \"propertyType\": 0,\n  \"destinationId\": 1,\n  \"neighborhood\": \"\",\n  \"price\": null,\n  \"priceLabel\": \"\",\n  \"currency\": \"ARS\",\n  \"bedrooms\": 1,\n  \"bathrooms\": 1,\n  \"squareMeters\": null,\n  \"landSize\": \"\",\n  \"capacity\": 2,\n  \"whatsAppMessage\": \"\",\n  \"amenities\": [],\n  \"seasonPrices\": []\n}"
+            }
+          }
+        },
+        {
+          "name": "GET /api/admin/properties/{id} — propiedad recién creada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Es la propiedad correcta', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.title).to.eql('Casa Test Postman');",
+                  "  pm.expect(body.amenities).to.include('wifi');",
+                  "  pm.expect(body.seasonPrices.length).to.eql(1);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/{{createdPropertyId}}"
+          }
+        },
+        {
+          "name": "GET /api/admin/properties/{id} — inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/99999"
+          }
+        },
+        {
+          "name": "PUT /api/admin/properties/{id} — editar propiedad",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Título actualizado', () => {",
+                  "  pm.expect(pm.response.json().title).to.eql('Casa Test Postman EDITADA');",
+                  "});",
+                  "pm.test('Amenidades actualizadas', () => {",
+                  "  const amen = pm.response.json().amenities;",
+                  "  pm.expect(amen).to.include('pool');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/{{createdPropertyId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Casa Test Postman EDITADA\",\n  \"description\": \"Descripción actualizada\",\n  \"category\": 0,\n  \"propertyType\": 0,\n  \"destinationId\": 1,\n  \"neighborhood\": \"Centro Norte\",\n  \"price\": 30000,\n  \"priceLabel\": \"por noche\",\n  \"currency\": \"USD\",\n  \"bedrooms\": 4,\n  \"bathrooms\": 3,\n  \"squareMeters\": 150,\n  \"landSize\": \"\",\n  \"capacity\": 8,\n  \"whatsAppMessage\": \"Consulto por la casa editada\",\n  \"amenities\": [\"wifi\", \"pool\", \"ac\"],\n  \"seasonPrices\": []\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT /api/admin/properties/{id} — inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/99999",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"No existe\",\"description\":\"Descripción de prueba\",\"category\":0,\"propertyType\":0,\"destinationId\":1,\"neighborhood\":\"\",\"price\":null,\"priceLabel\":\"\",\"currency\":\"ARS\",\"bedrooms\":1,\"bathrooms\":1,\"squareMeters\":null,\"landSize\":\"\",\"capacity\":1,\"whatsAppMessage\":\"\",\"amenities\":[],\"seasonPrices\":[]}"
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/admin/properties/{id}/status — pausar (status=1)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/{{createdPropertyId}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "1"
+            }
+          }
+        },
+        {
+          "name": "PATCH — verificar que pausada no aparece en público",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Propiedad pausada no aparece en público', () => {",
+                  "  const ids = pm.response.json().items.map(p => p.id);",
+                  "  const createdId = parseInt(pm.collectionVariables.get('createdPropertyId'));",
+                  "  pm.expect(ids).to.not.include(createdId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base}}/api/properties"
+          }
+        },
+        {
+          "name": "PATCH /api/admin/properties/{id}/status — reactivar (status=0)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/{{createdPropertyId}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "0"
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/admin/properties/{id}/status — valor 99 → 400 (validado)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 (enum inválido rechazado)', () => pm.response.to.have.status(400));",
+                  "pm.test('Mensaje descriptivo', () => {",
+                  "  pm.expect(pm.response.json().message).to.include('Status inválido');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/{{createdPropertyId}}/status",
+            "body": {
+              "mode": "raw",
+              "raw": "99"
+            }
+          }
+        },
+        {
+          "name": "PATCH /api/admin/properties/{id}/status — inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/99999/status",
+            "body": {
+              "mode": "raw",
+              "raw": "1"
+            }
+          }
+        },
+        {
+          "name": "PUT /api/admin/properties/{id}/availability — setear días",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/{{createdPropertyId}}/availability",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"days\": [\n    { \"date\": \"2026-12-24\", \"status\": 2 },\n    { \"date\": \"2026-12-25\", \"status\": 2 },\n    { \"date\": \"2026-12-26\", \"status\": 1 },\n    { \"date\": \"2026-12-27\", \"status\": 0 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT /api/admin/properties/{id}/availability — vaciar días",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/{{createdPropertyId}}/availability",
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"days\": [] }"
+            }
+          }
+        },
+        {
+          "name": "PUT /api/admin/properties/{id}/images/reorder — con IDs reales",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Este request requiere que la propiedad con id=2 tenga imágenes cargadas.",
+                  "// El script obtiene los IDs de imágenes del GET anterior y los reordena en reversa.",
+                  "const getUrl = pm.collectionVariables.get('base') + '/api/admin/properties/2';",
+                  "pm.sendRequest({",
+                  "  url: getUrl,",
+                  "  method: 'GET',",
+                  "  header: { 'Authorization': 'Bearer ' + pm.collectionVariables.get('token') }",
+                  "}, (err, res) => {",
+                  "  if (!err && res.json().images && res.json().images.length > 0) {",
+                  "    const ids = res.json().images.map(i => i.id).reverse();",
+                  "    pm.collectionVariables.set('imageIdsForReorder', JSON.stringify(ids));",
+                  "  } else {",
+                  "    pm.collectionVariables.set('imageIdsForReorder', '[]');",
+                  "  }",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/2/images/reorder",
+            "body": {
+              "mode": "raw",
+              "raw": "{{imageIdsForReorder}}"
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/admin/properties/{id} — eliminar (soft delete)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/{{createdPropertyId}}"
+          }
+        },
+        {
+          "name": "DELETE — verificar que eliminada no aparece ni en admin ni en público",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Propiedad eliminada no aparece en admin', () => {",
+                  "  const ids = pm.response.json().items.map(p => p.id);",
+                  "  const createdId = parseInt(pm.collectionVariables.get('createdPropertyId'));",
+                  "  pm.expect(ids).to.not.include(createdId);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties"
+          }
+        },
+        {
+          "name": "GET /api/admin/properties/{id} — propiedad eliminada (debe ser 404 incluso en admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// El repo filtra Status != Deleted incluso en GetByIdAsync — eliminadas no se exponen",
+                  "pm.test('Status 404 para propiedad eliminada', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/{{createdPropertyId}}"
+          }
+        },
+        {
+          "name": "DELETE /api/admin/properties/{id} — inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/99999"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🗺️ Admin — Destinos",
+      "item": [
+        {
+          "name": "GET /api/admin/destinations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Array de destinos', () => {",
+                  "  pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/destinations"
+          }
+        },
+        {
+          "name": "POST /api/admin/destinations — crear destino",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200 o 201', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "pm.test('Destino creado correctamente', () => {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body).to.have.property('id');",
+                  "  pm.expect(body.name).to.eql('Destino Test');",
+                  "  pm.collectionVariables.set('createdDestinationId', body.id);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/destinations",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Destino Test\",\n  \"country\": \"Argentina\",\n  \"imageUrl\": \"https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=500\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /api/admin/destinations — sin imageUrl (requerida → 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 (imageUrl es requerida)', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/destinations",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Destino Sin Imagen\",\n  \"country\": \"Uruguay\",\n  \"imageUrl\": null\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT /api/admin/destinations/{id} — editar destino",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Nombre actualizado', () => {",
+                  "  pm.expect(pm.response.json().name).to.eql('Destino Test Editado');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/destinations/{{createdDestinationId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Destino Test Editado\",\n  \"country\": \"Argentina\",\n  \"imageUrl\": \"https://images.unsplash.com/photo-1500835556837-99ac94a94552?w=500\"\n}"
+            }
+          }
+        },
+        {
+          "name": "PUT /api/admin/destinations/{id} — inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base}}/api/admin/destinations/99999",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"No existe\",\"country\":\"Argentina\",\"imageUrl\":\"https://images.unsplash.com/photo-test\"}"
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/admin/destinations/{id}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/destinations/{{createdDestinationId}}"
+          }
+        },
+        {
+          "name": "DELETE /api/admin/destinations/{id} — inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/destinations/99999"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🖼️ Admin — Imágenes",
+      "item": [
+        {
+          "name": "⚠️ POST /api/admin/properties/{id}/images — subir imagen (MANUAL: requiere archivo)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Newman no puede adjuntar archivos — este test pasa solo en Postman GUI con un JPG/PNG seleccionado",
+                  "if (pm.response.code === 400) {",
+                  "  pm.test('SKIPPED en Newman (requiere archivo manual)', () => true);",
+                  "} else {",
+                  "  pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "  pm.test('Devuelve datos de imagen', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('id');",
+                  "    pm.expect(body).to.have.property('url');",
+                  "    pm.collectionVariables.set('createdImageId', body.id);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/2/images",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "⚠️ Seleccionar un archivo de imagen JPG/PNG antes de ejecutar"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/admin/properties/{id}/images — propiedad inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404 o 400', () => {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([400, 404]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/99999/images",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "⚠️ Seleccionar un archivo de imagen JPG/PNG antes de ejecutar"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "POST /api/admin/properties/{id}/images — sin archivo adjunto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400 (falta el file)', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/properties/2/images",
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            }
+          }
+        },
+        {
+          "name": "DELETE /api/admin/images/{imageId}",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const imgId = pm.collectionVariables.get('createdImageId');",
+                  "if (!imgId) {",
+                  "  pm.test('SKIPPED — createdImageId vacío (upload no se ejecutó en Newman)', () => true);",
+                  "} else {",
+                  "  pm.test('Status 204', () => pm.response.to.have.status(204));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/images/{{createdImageId}}"
+          }
+        },
+        {
+          "name": "DELETE /api/admin/images/{imageId} — inexistente → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 404 (imagen inexistente)', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{base}}/api/admin/images/99999"
+          }
+        }
+      ]
+    }
+  ]
+}

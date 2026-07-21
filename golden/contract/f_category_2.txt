@@ -1,0 +1,5 @@
+### GET /api/properties?category=2
+HTTP 200
+content-type: application/json;charset=utf-8
+--- body ---
+{"items":[{"id":10,"title":"Casa en primera línea al mar","category":2,"propertyType":0,"destinationId":6,"destinationName":"Costa Esmeralda","neighborhood":"Costa Esmeralda Golf","price":280000.00,"priceLabel":"precio total","currency":"USD","bedrooms":4,"bathrooms":3,"squareMeters":320.00,"landSize":"1200m²","capacity":8,"coverImageUrl":"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800","amenities":["pool","garden","beach_access","parking"],"status":0,"isFeatured":true},{"id":9,"title":"Lote en Costa Esmeralda","category":2,"propertyType":0,"destinationId":6,"destinationName":"Costa Esmeralda","neighborhood":"Costa Azul","price":45000.00,"priceLabel":"precio total","currency":"USD","bedrooms":0,"bathrooms":0,"squareMeters":null,"landSize":"800m²","capacity":0,"coverImageUrl":"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","amenities":["gated_community"],"status":0,"isFeatured":true}],"total":2,"page":1,"pageSize":12}

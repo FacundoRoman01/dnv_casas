@@ -1,0 +1,6 @@
+### POST /api/admin/properties
+### body: {"title":"Test intercambio","description":"x","category":1,"propertyType":0,"destinationId":1,"neighborhood":"","price":5000,"priceLabel":"por noche","currency":"ARS","bedrooms":1,"bathrooms":1,"squareMeters":null,"landSize":"","capacity":1,"whatsAppMessage":"","amenities":[],"seasonPrices":[]}
+HTTP 400
+content-type: application/json;charset=utf-8
+--- body ---
+{"error":"Una propiedad de intercambio no puede tener precio"}

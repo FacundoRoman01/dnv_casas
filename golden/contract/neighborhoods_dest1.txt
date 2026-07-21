@@ -1,0 +1,5 @@
+### GET /api/properties/neighborhoods?destinationId=1
+HTTP 200
+content-type: application/json;charset=utf-8
+--- body ---
+["Belgrano","Centro","Colonia Suiza"]

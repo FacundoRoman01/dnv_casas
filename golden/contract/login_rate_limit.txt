@@ -1,0 +1,6 @@
+### POST /api/auth/login
+### body: {"email":"admin@dnvcasas.com","password":"admin123"}
+HTTP 429
+content-type: 
+--- body ---
+

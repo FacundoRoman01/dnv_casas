@@ -1,0 +1,6 @@
+### POST /api/auth/login
+### body: {"email":"nadie@nada.com","password":"x"}
+HTTP 401
+content-type: application/json;charset=utf-8
+--- body ---
+{"message":"Credenciales inválidas"}

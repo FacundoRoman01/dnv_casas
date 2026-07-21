@@ -1,0 +1,5 @@
+### GET /api/properties/7
+HTTP 200
+content-type: application/json;charset=utf-8
+--- body ---
+{"id":7,"title":"Casa familiar en Bariloche","description":"Casa de 3 dormitorios en barrio tranquilo de Bariloche. Jardín, parrilla y garage. Disponible para intercambio en temporada alta o baja.","category":1,"propertyType":0,"destinationId":1,"destinationName":"Bariloche","neighborhood":"Belgrano","price":null,"priceLabel":"Intercambio","currency":"ARS","bedrooms":3,"bathrooms":2,"squareMeters":130.00,"landSize":"","capacity":6,"status":0,"whatsAppMessage":"Hola! Me interesa intercambiar casa en Bariloche","createdAt":"2026-07-13T20:36:28","coverImageUrl":"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800","images":[{"id":11,"url":"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800","displayOrder":0,"isCover":true},{"id":12,"url":"https://images.unsplash.com/photo-1416331108676-a22ccb276e35?w=800","displayOrder":1,"isCover":false}],"amenities":["wifi","parking","bbq","garden"],"seasonPrices":[],"availability":[],"isFeatured":true}

@@ -1,0 +1,96 @@
+server:
+  port: 8080
+  # Sin esto, docker compose down / un deploy corta los requests en vuelo de
+  # golpe: un POST a mitad de camino queda sin respuesta y el cliente ve un
+  # error de red.
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Solo health. Los demás endpoints de actuator exponen configuración,
+        # variables de entorno y métricas — nada de eso va abierto.
+        include: health
+  endpoint:
+    health:
+      # Muestra el detalle (incluido si MySQL responde) solo a quien esté
+      # autenticado; para el resto es un {"status":"UP"} pelado.
+      show-details: when-authorized
+
+spring:
+  application:
+    name: dnvcasas
+  servlet:
+    multipart:
+      # El límite real lo aplica ImageService (mensaje en español, 400 con
+      # {"error":...}). Acá va más alto: si Tomcat corta antes, la respuesta
+      # sería un error de contenedor y no el del contrato.
+      max-file-size: 15MB
+      max-request-size: 15MB
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3307/dnvcasas?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC}
+    username: ${DB_USER:root}
+    password: ${DB_PASSWORD:dnvcasas123}
+    hikari:
+      # El .NET hace ServerVersion.AutoDetect y falla rápido si la conexión está mal.
+      initialization-fail-timeout: 1
+      # El default de Hikari son 10 conexiones y 30s de timeout. Explícito para
+      # que se vea que es una decisión: con Tomcat en 200 threads, 10 conexiones
+      # es el cuello de botella real de la app.
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      connection-timeout: 10000
+  flyway:
+    enabled: true
+    # La base ya existe y la creó EF. baseline-on-migrate marca la V1 como
+    # aplicada sin correrla, y sigue desde V2. En una base vacía (tests, un dev
+    # nuevo) sí corre la V1, así que el schema es reproducible sin el .NET.
+    baseline-on-migrate: true
+    baseline-version: 1
+    baseline-description: "Schema heredado de las migraciones de EF Core"
+
+  jpa:
+    # El schema lo maneja Flyway. Hibernate nunca toca la estructura.
+    hibernate:
+      ddl-auto: none
+      naming:
+        # CRÍTICO: por defecto Spring Boot pisa los @Table/@Column explícitos y los
+        # pasa a snake_case minúscula — "Properties" se volvía "properties" y en
+        # MySQL sobre Linux los nombres de tabla SÍ distinguen mayúsculas.
+        # El schema lo creó EF con PascalCase, así que hay que respetarlo tal cual.
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    # Sin esto, el fetch en dos fases degrada a N+1 silencioso en vez de fallar ruidoso.
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+
+springdoc:
+  # El .NET solo monta Swagger si IsDevelopment(). Acá se controla por env:
+  # en producción va SWAGGER_ENABLED=false y no se expone nada.
+  api-docs:
+    enabled: ${SWAGGER_ENABLED:true}
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED:true}
+    path: /swagger-ui.html
+
+frontend:
+  url: ${FRONTEND_URL:http://localhost:5173}
+
+jwt:
+  # La MISMA clave que el .NET: mientras corran los dos, un token emitido por
+  # cualquiera tiene que validar en el otro.
+  key: ${JWT_KEY:}
+  issuer: ${JWT_ISSUER:DnvCasas}
+  audience: ${JWT_AUDIENCE:DnvCasas}
+
+uploads:
+  # Vacío = {cwd}/wwwroot/uploads, el mismo fallback del C#.
+  physical-path: ${UPLOADS_PHYSICAL_PATH:}
+  url-path: ${UPLOADS_URL_PATH:/uploads}
+
+logging:
+  level:
+    root: INFO
+    # Para cazar HHH90003004 (paginación en memoria) durante el port.
+    org.hibernate.orm.query: WARN

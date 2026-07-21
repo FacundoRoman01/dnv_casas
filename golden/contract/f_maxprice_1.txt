@@ -1,0 +1,5 @@
+### GET /api/properties?maxPrice=1
+HTTP 200
+content-type: application/json;charset=utf-8
+--- body ---
+{"items":[{"id":8,"title":"Departamento en Mendoza para intercambio","category":1,"propertyType":1,"destinationId":4,"destinationName":"Mendoza","neighborhood":"Centro","price":null,"priceLabel":"Intercambio","currency":"ARS","bedrooms":2,"bathrooms":1,"squareMeters":75.00,"landSize":"","capacity":4,"coverImageUrl":"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800","amenities":["wifi","air_conditioning"],"status":0,"isFeatured":false},{"id":7,"title":"Casa familiar en Bariloche","category":1,"propertyType":0,"destinationId":1,"destinationName":"Bariloche","neighborhood":"Belgrano","price":null,"priceLabel":"Intercambio","currency":"ARS","bedrooms":3,"bathrooms":2,"squareMeters":130.00,"landSize":"","capacity":6,"coverImageUrl":"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800","amenities":["wifi","parking","bbq","garden"],"status":0,"isFeatured":true}],"total":2,"page":1,"pageSize":12}

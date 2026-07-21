@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "General Sans", "Hanken Grotesk", system-ui, -apple-system, sans-serif;
+  color: #14171B;
+  background: #F5F7F9;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}

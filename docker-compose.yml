@@ -1,0 +1,74 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: dnvcasas_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: dnvcasas
+    ports:
+      # 3307 en el host: el 3306 lo ocupa el MySQL de otro proyecto
+      - "3307:3306"
+    volumes:
+      - dnvcasas_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  api:
+    build:
+      context: ./backend-java
+    container_name: dnvcasas_api
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: "jdbc:mysql://mysql:3306/dnvcasas?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC"
+      DB_USER: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      FRONTEND_URL: "http://localhost:5173"
+      JWT_KEY: ${JWT_KEY}
+      JWT_ISSUER: DnvCasas
+      JWT_AUDIENCE: DnvCasas
+      UPLOADS_PHYSICAL_PATH: /app/wwwroot/uploads
+      UPLOADS_URL_PATH: /uploads
+      # Swagger solo en desarrollo, como hacía el .NET con IsDevelopment().
+      SWAGGER_ENABLED: ${SWAGGER_ENABLED:-true}
+    ports:
+      - "5254:8080"
+    volumes:
+      - dnvcasas_uploads:/app/wwwroot/uploads
+    # Sin esto, un contenedor con la conexión a MySQL caída figura "Up" y sigue
+    # recibiendo tráfico. /actuator/health incluye el estado de la base.
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${API_URL:-http://localhost:5254/api}
+        VITE_WHATSAPP: ${VITE_WHATSAPP}
+        VITE_INSTAGRAM: ${VITE_INSTAGRAM:-}
+        # Sin el número real de WhatsApp el build falla — ver frontend/vite.config.js.
+        # Para levantar en local mientras tanto:
+        #   ALLOW_PLACEHOLDER_WHATSAPP=1 docker compose up -d --build web
+        ALLOW_PLACEHOLDER_WHATSAPP: ${ALLOW_PLACEHOLDER_WHATSAPP:-}
+    container_name: dnvcasas_web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "5173:80"
+
+volumes:
+  dnvcasas_mysql_data:
+  dnvcasas_uploads:

@@ -1,0 +1,6 @@
+### POST /api/admin/properties
+### body: {"title":"Test temporadas","description":"x","category":0,"propertyType":0,"destinationId":1,"neighborhood":"","price":1000,"priceLabel":"por noche","currency":"ARS","bedrooms":1,"bathrooms":1,"squareMeters":null,"landSize":"","capacity":2,"whatsAppMessage":"","amenities":[],"seasonPrices":[{"label":"Alta","pricePerNight":100,"dateFrom":"2026-01-01","dateTo":"2026-02-01"},{"label":"Media","pricePerNight":80,"dateFrom":"2026-01-15","dateTo":"2026-03-01"}]}
+HTTP 400
+content-type: application/json;charset=utf-8
+--- body ---
+{"error":"La temporada 'Media' se superpone con 'Alta'"}

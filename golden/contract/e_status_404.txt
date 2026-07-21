@@ -1,0 +1,6 @@
+### PATCH /api/admin/properties/99999/status
+### body: 0
+HTTP 404
+content-type: application/problem+json;charset=utf-8
+--- body ---
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404}

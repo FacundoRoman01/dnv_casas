@@ -1,0 +1,5 @@
+### GET /api/properties/neighborhoods
+HTTP 200
+content-type: application/json;charset=utf-8
+--- body ---
+["Belgrano","Centro","Chacras de Coria","Colonia Suiza","Costa Azul","Costa Esmeralda Golf","El Calafate"]

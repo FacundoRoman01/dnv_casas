@@ -1,0 +1,20 @@
+# Normaliza los line endings: el repo guarda LF, cada quien ve lo suyo al checkout.
+* text=auto
+
+# Estos SIEMPRE en LF, aunque estés en Windows: son scripts que corren en Linux
+# (el runner de CI, el contenedor Docker). Con CRLF fallan con "command not found".
+*.sh    text eol=lf
+mvnw    text eol=lf
+*.yml   text eol=lf
+*.yaml  text eol=lf
+Dockerfile text eol=lf
+
+# El .cmd de Windows sí va en CRLF.
+*.cmd   text eol=crlf
+*.bat   text eol=crlf
+
+# Binarios: que git no les toque nada.
+*.jar   binary
+*.png   binary
+*.jpg   binary
+*.ico   binary

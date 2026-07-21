@@ -1,0 +1,6 @@
+### PATCH /api/admin/properties/1/status
+### body: 2
+HTTP 400
+content-type: application/json;charset=utf-8
+--- body ---
+{"message":"Para eliminar una propiedad usar DELETE /{id}."}

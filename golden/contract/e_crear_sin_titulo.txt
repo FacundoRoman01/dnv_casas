@@ -1,0 +1,6 @@
+### POST /api/admin/properties
+### body: {"title":"","description":"x","category":0,"propertyType":0,"destinationId":1,"neighborhood":"","price":1,"priceLabel":"","currency":"ARS","bedrooms":1,"bathrooms":1,"squareMeters":null,"landSize":"","capacity":1,"whatsAppMessage":"","amenities":[],"seasonPrices":[]}
+HTTP 400
+content-type: application/problem+json;charset=utf-8
+--- body ---
+{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"Title":["El título es requerido","El título debe tener al menos 3 caracteres"]}}

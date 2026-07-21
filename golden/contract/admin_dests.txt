@@ -1,0 +1,5 @@
+### GET /api/admin/destinations
+HTTP 200
+content-type: application/json;charset=utf-8
+--- body ---
+[{"id":1,"name":"Bariloche","country":"Argentina","imageUrl":"https://images.unsplash.com/photo-1601918774946-25832a4be0d6?w=800","propertyCount":4},{"id":2,"name":"Punta del Este","country":"Uruguay","imageUrl":"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","propertyCount":0},{"id":3,"name":"Miami","country":"Estados Unidos","imageUrl":"https://images.unsplash.com/photo-1503891450247-ee5f8ec46dc3?w=800","propertyCount":0},{"id":4,"name":"Mendoza","country":"Argentina","imageUrl":"https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800","propertyCount":3},{"id":5,"name":"Patagonia","country":"Argentina","imageUrl":"https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800","propertyCount":1},{"id":6,"name":"Costa Esmeralda","country":"Argentina","imageUrl":"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","propertyCount":2}]

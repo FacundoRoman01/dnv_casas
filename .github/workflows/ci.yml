@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+# Un push nuevo cancela el build anterior de la misma rama: sin esto, tres
+# commits seguidos dejan tres builds compitiendo por los runners.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend Java
+    runs-on: ubuntu-latest
+    # mvn verify levanta dos MySQL con Testcontainers.
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+          cache: maven
+
+      # `verify` y no `test`: test corre los unitarios (rápidos, sin Docker) y
+      # verify agrega los *IT — GoldenIT, que replica el contrato REST completo,
+      # y WriteFlowIT. Sin esto, el build pasaría verde con el contrato roto.
+      #
+      # Los runners de GitHub traen Docker, así que Testcontainers anda sin
+      # configurar nada.
+      # ./mvnw y no mvn: el wrapper fija la versión de Maven (3.9.9), así el
+      # build es idéntico en CI y en la máquina de cualquiera.
+      - name: Build y tests
+        working-directory: backend-java
+        run: ./mvnw -B verify
+
+      # Si algo falla, el log de Maven dice "expected X but was Y" pero no
+      # cuál de los 62 escenarios ni con qué body. Los reportes sí.
+      - name: Reportes de test
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reportes-backend
+          path: backend-java/**/target/*-reports/
+          retention-days: 7
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      # `npm ci` y no `npm install`: falla si el lock está desincronizado del
+      # package.json, en vez de arreglarlo en silencio. Ya pasó una vez: el lock
+      # se había generado en Windows y no traía las dependencias nativas de Linux.
+      - name: Instalar
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      # ALLOW_PLACEHOLDER_WHATSAPP=1 acá es a propósito: CI verifica que el
+      # código COMPILE, y para eso el número real no hace falta.
+      #
+      # ⚠️ El deploy NO tiene que setear esta variable. Ese es justamente el
+      # mecanismo: sin el número real, el build de producción falla y el sitio
+      # no sale con los 16 botones de WhatsApp muertos.
+      - name: Build
+        working-directory: frontend
+        env:
+          ALLOW_PLACEHOLDER_WHATSAPP: '1'
+          VITE_WHATSAPP: '5491100000000'
+        run: npm run build
+
+  docker:
+    name: Imágenes Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Que compile no garantiza que la imagen se arme: los Dockerfile tienen su
+    # propia lógica (multi-stage, el usuario sin privilegios, el GID compartido
+    # del volumen de uploads) que ya se rompió una vez.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Backend
+        run: docker build -t dnvcasas-api:ci ./backend-java
+
+      - name: Frontend
+        run: |
+          docker build -t dnvcasas-web:ci \
+            --build-arg ALLOW_PLACEHOLDER_WHATSAPP=1 \
+            --build-arg VITE_WHATSAPP=5491100000000 \
+            ./frontend
+
+      # El build del frontend TIENE que fallar sin el número real. Si esto pasa,
+      # la protección se rompió y un deploy podría salir con las CTAs muertas.
+      - name: El build falla sin el número de WhatsApp
+        run: |
+          if docker build -q -t dnvcasas-web:sin-numero ./frontend 2>/dev/null; then
+            echo "::error::El build del frontend NO falló sin VITE_WHATSAPP."
+            echo "::error::Esa protección es lo único que evita publicar el sitio"
+            echo "::error::con los 16 botones de WhatsApp muertos. Ver frontend/vite.config.js"
+            exit 1
+          fi
+          echo "OK: el build rechaza el placeholder"

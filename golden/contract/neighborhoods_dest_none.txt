@@ -1,0 +1,5 @@
+### GET /api/properties/neighborhoods?destinationId=99999
+HTTP 200
+content-type: application/json;charset=utf-8
+--- body ---
+[]

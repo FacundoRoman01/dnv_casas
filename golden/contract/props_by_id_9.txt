@@ -1,0 +1,5 @@
+### GET /api/properties/9
+HTTP 200
+content-type: application/json;charset=utf-8
+--- body ---
+{"id":9,"title":"Lote en Costa Esmeralda","description":"Lote de 800m² en barrio cerrado de Costa Esmeralda a 200 metros de la playa. Todos los servicios. Oportunidad única de inversión.","category":2,"propertyType":0,"destinationId":6,"destinationName":"Costa Esmeralda","neighborhood":"Costa Azul","price":45000.00,"priceLabel":"precio total","currency":"USD","bedrooms":0,"bathrooms":0,"squareMeters":null,"landSize":"800m²","capacity":0,"status":0,"whatsAppMessage":"Hola! Me interesa el lote en Costa Esmeralda","createdAt":"2026-07-13T20:36:28","coverImageUrl":"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","images":[{"id":14,"url":"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800","displayOrder":0,"isCover":true},{"id":15,"url":"https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=800","displayOrder":1,"isCover":false}],"amenities":["gated_community"],"seasonPrices":[],"availability":[],"isFeatured":true}
