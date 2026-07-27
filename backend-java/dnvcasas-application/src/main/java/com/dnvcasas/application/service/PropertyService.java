@@ -13,6 +13,8 @@ import com.dnvcasas.domain.vo.DateRange;
 import com.dnvcasas.domain.vo.Money;
 import com.dnvcasas.domain.vo.PropertySpecs;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.Comparator;
 import java.util.List;
@@ -147,6 +149,7 @@ public class PropertyService {
      * valor la pausa. La transición la valida el dominio (activate/pause lanzan si está borrada).
      * @return true si existía y se actualizó, false si no había propiedad con ese id.
      */
+     @Transactional
     public boolean updateStatus(int id, PropertyStatus status) {
         return repo.findById(id).map(entity -> {
             // Solo ACTIVE reactiva; el resto de los estados se traducen a "pausar".
@@ -162,6 +165,7 @@ public class PropertyService {
      * (lo controla {@code Property.feature}); quitar siempre es válido.
      * @return true si existía y se actualizó, false si no había propiedad con ese id.
      */
+    @Transactional
     public boolean setFeatured(int id, boolean featured) {
         return repo.findById(id).map(entity -> {
             if (featured) entity.feature();
@@ -177,6 +181,7 @@ public class PropertyService {
      * acá le volvemos a cargar a mano amenities y precios por temporada desde el original.
      * @return el detalle de la copia recién creada, o vacío si el original no existe.
      */
+    @Transactional
     public Optional<PropertyDto> duplicate(int id) {
         return repo.findById(id).map(original -> {
             Property copy = original.duplicate();
@@ -194,6 +199,7 @@ public class PropertyService {
      * Borrado lógico de una propiedad (marca DELETED, no elimina la fila).
      * @return true si existía y se borró, false si no había propiedad con ese id.
      */
+    @Transactional
     public boolean delete(int id) {
         return repo.findById(id).map(entity -> {
             entity.delete();
@@ -206,18 +212,20 @@ public class PropertyService {
      * Reemplaza por completo el calendario de disponibilidad de una propiedad.
      * @return true si existía y se actualizó, false si no había propiedad con ese id.
      */
-    public boolean updateAvailability(int id, UpdateAvailabilityDto dto) {
-        return repo.findById(id).map(entity -> {
-            entity.setAvailability(dto.days().stream()
-                    .map(d -> new Property.AvailabilityDay(d.date(), d.status()))
-                    .toList());
-            repo.update(entity);
-            return true;
-        }).orElse(false);
-    }
+@Transactional
+public boolean updateAvailability(int id, UpdateAvailabilityDto dto) {
+    return repo.findById(id).map(entity -> {
+        entity.setAvailability(dto.days().stream()
+                .map(d -> new Property.AvailabilityDay(d.date(), d.status()))
+                .toList());
+        repo.update(entity);
+        return true;
+    }).orElse(false);
+}
 
     // Arma el value object Money desde el DTO. Defaults heredados del contrato .NET:
     // moneda "ARS" si no viene, y etiqueta "" si no viene (no null).
+    @Transactional
     private static Money money(CreateUpdatePropertyDto dto) {
         return Money.from(dto.price(),
                 dto.currency() == null ? "ARS" : dto.currency(),

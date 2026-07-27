@@ -69,14 +69,15 @@ export default function AvailabilityCalendar({ availability, onChange }) {
 
   const days = getDaysInMonth(viewYear, viewMonth)
   const firstDay = getFirstDayOfMonth(viewYear, viewMonth)
-  const MONTHS = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
+  const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
 
   return (
     <div>
       {/* Selector de estado */}
       <div className="flex gap-2 mb-4">
         {Object.entries(STATUS_LABELS).map(([s, label]) => (
-          <button key={s} onClick={() => setSelectedStatus(Number(s))}
+          // <button key={s} onClick={() => setSelectedStatus(Number(s))}
+          <button type="button" key={s} onClick={() => setSelectedStatus(Number(s))}
             className={`text-xs px-3 py-1.5 rounded-full font-medium border transition-all ${Number(s) === selectedStatus ? "border-primary bg-primary text-white" : "border-gray-200 text-gray-500 hover:border-gray-400"}`}>
             <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${STATUS_COLORS[s]}`} />
             {label}
@@ -86,14 +87,20 @@ export default function AvailabilityCalendar({ availability, onChange }) {
 
       {/* Navegación mes */}
       <div className="flex items-center justify-between mb-3">
-        <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">←</button>
+        {/* <button onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">←</button>
         <span className="font-semibold text-primary text-sm">{MONTHS[viewMonth]} {viewYear}</span>
-        <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">→</button>
+        <button onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">→</button> */}
+
+        <button type="button" onClick={prevMonth} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">←</button>
+        <span className="font-semibold text-primary text-sm">{MONTHS[viewMonth]} {viewYear}</span>
+        <button type="button" onClick={nextMonth} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">→</button>
+
+
       </div>
 
       {/* Grid */}
       <div className="grid grid-cols-7 gap-1 text-xs text-center">
-        {["Do","Lu","Ma","Mi","Ju","Vi","Sa"].map(d => (
+        {["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"].map(d => (
           <div key={d} className="font-semibold text-gray-400 py-1">{d}</div>
         ))}
         {[...Array(firstDay)].map((_, i) => <div key={`e-${i}`} />)}
@@ -102,7 +109,9 @@ export default function AvailabilityCalendar({ availability, onChange }) {
           const key = toDateKey(viewYear, viewMonth, day)
           const status = availMap[key]
           return (
-            <button key={day} onClick={() => toggleDay(key)}
+            // <button key={day} onClick={() => toggleDay(key)}
+
+            <button type="button" key={day} onClick={() => toggleDay(key)}
               className={`py-1.5 rounded-lg font-medium transition-all hover:scale-105 ${status !== undefined ? `${STATUS_COLORS[status]} text-white` : "hover:bg-gray-100 text-gray-600"}`}>
               {day}
             </button>

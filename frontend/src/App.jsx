@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { useEffect } from "react"
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"
 import Navbar from "./components/layout/Navbar"
 import Footer from "./components/layout/Footer"
 import Home from "./pages/Home"
@@ -21,6 +22,31 @@ import NotFound from "./pages/NotFound"
 // Guard de rutas de admin: si no hay token en localStorage, redirige al login.
 // Es un chequeo de presencia, no valida el token (de eso se encarga el back,
 // que ante un 401 dispara el logout forzado en lib/api.js).
+
+function ScrollHandler() {
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.substring(1) // Le saca el "#"
+      
+      setTimeout(() => {
+        const element = document.getElementById(id)
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' })
+        }
+      }, 100)
+    } else {
+      // Opcional: Si cambiás de página y no hay hash, te lleva arriba de todo
+      window.scrollTo(0, 0)
+    }
+  }, [location])
+
+  return null // Es invisible, no rompe el diseño
+}
+
+
+
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token")
   return token ? children : <Navigate to="/admin/login" replace />
@@ -40,6 +66,9 @@ function PublicLayout({ children }) {
 export default function App() {
   return (
     <BrowserRouter>
+
+    <ScrollHandler />
+
       <Routes>
         {/* Admin */}
         <Route path="/admin/login" element={<AdminLogin />} />

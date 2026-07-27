@@ -144,10 +144,11 @@ export default function PropertyDetail() {
     property ? { destinationId: property.destinationId, pageSize: 5 } : null
   )
 
-  const [lbOpen, setLbOpen]   = useState(false)
+const [lbOpen, setLbOpen]   = useState(false)
   const [lbIdx,  setLbIdx]    = useState(0)
   const [sel,    setSel]      = useState({ in: null, out: null })
   const [ratesOpen, setRatesOpen] = useState(false)
+  const [monthOffset, setMonthOffset] = useState(0) // agregado recien por facundo
   const closeLb = useCallback(() => setLbOpen(false), [])
 
   // Al cambiar de propiedad (mismo componente, otro :id) reseteamos selección de
@@ -156,6 +157,7 @@ export default function PropertyDetail() {
     setSel({ in: null, out: null })
     setRatesOpen(false)
     setLbOpen(false)
+    setMonthOffset(0)
   }, [id])
 
   if (loading) return (
@@ -205,11 +207,25 @@ export default function PropertyDetail() {
   const relatedItems = (related?.items || []).filter(p => String(p.id) !== String(id)).slice(0, 4)
 
   // calendar — show current + next month
-  const now = new Date()
-  const months = [
-    { year: now.getFullYear(), month: now.getMonth() },
-    { year: now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear(), month: (now.getMonth() + 1) % 12 },
-  ]
+  // const now = new Date()
+  // const months = [
+  //   { year: now.getFullYear(), month: now.getMonth() },
+  //   { year: now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear(), month: (now.getMonth() + 1) % 12 },
+  // ]
+
+
+  // calendar — muestra 2 meses consecutivos, arrancando en (hoy + monthOffset).
+// monthOffset se mueve con las flechas ← → y nunca deja ir antes del mes actual.
+const now = new Date()
+const baseMonthIndex = now.getFullYear() * 12 + now.getMonth() + monthOffset
+const months = [0, 1].map(i => {
+  const idx = baseMonthIndex + i
+  return { year: Math.floor(idx / 12), month: idx % 12 }
+})
+const canGoBack = monthOffset > 0
+
+
+
 
   // Lógica de selección del rango en el calendario: el primer toque fija el
   // check-in; el segundo el check-out (y si es anterior, se invierten).
@@ -403,18 +419,47 @@ export default function PropertyDetail() {
                 )}
               </div>
               {/* months */}
-              <div style={{ display: "flex", gap: "36px" }}>
-                {months.map(m => (
-                  <CalendarMonth
-                    key={`${m.year}-${m.month}`}
-                    year={m.year}
-                    month={m.month}
-                    sel={sel}
-                    onPick={handleDayPick}
-                    availability={property.availability}
-                  />
-                ))}
-              </div>
+{/* months */}
+<div className="flex items-center gap-3">
+  <button
+    type="button"
+    onClick={() => canGoBack && setMonthOffset(o => o - 1)}
+    disabled={!canGoBack}
+    className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition"
+    style={{
+      border: "1px solid #DCE2E9",
+      color: canGoBack ? "#44536A" : "#ccc",
+      cursor: canGoBack ? "pointer" : "not-allowed",
+      background: "#fff",
+    }}
+    aria-label="Meses anteriores"
+  >
+    {Icons.arrowL}
+  </button>
+
+  <div style={{ display: "flex", gap: "36px", flex: 1 }}>
+    {months.map(m => (
+      <CalendarMonth
+        key={`${m.year}-${m.month}`}
+        year={m.year}
+        month={m.month}
+        sel={sel}
+        onPick={handleDayPick}
+        availability={property.availability}
+      />
+    ))}
+  </div>
+
+  <button
+    type="button"
+    onClick={() => setMonthOffset(o => o + 1)}
+    className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition"
+    style={{ border: "1px solid #DCE2E9", color: "#44536A", cursor: "pointer", background: "#fff" }}
+    aria-label="Meses siguientes"
+  >
+    {Icons.arrowR}
+  </button>
+</div>
               <p className="mt-4 text-xs" style={{ color: "#67717F" }}>
                 Tocá los días disponibles para armar tu reserva. El equipo confirma disponibilidad por WhatsApp.
               </p>

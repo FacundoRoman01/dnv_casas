@@ -206,9 +206,18 @@ export default function PropertyForm() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 w-fit">
+        {/* <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 w-fit">
           {TABS.map(t => (
             <button key={t.id} onClick={() => setActiveTab(t.id)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === t.id ? "bg-white shadow text-primary" : "text-gray-500 hover:text-primary"}`}>
+              {t.label}
+            </button>
+          ))}
+        </div> */}
+
+        <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 w-fit">
+          {TABS.map(t => (
+            <button type="button" key={t.id} onClick={() => setActiveTab(t.id)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === t.id ? "bg-white shadow text-primary" : "text-gray-500 hover:text-primary"}`}>
               {t.label}
             </button>

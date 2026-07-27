@@ -244,9 +244,51 @@ public class Property {
     }
 
     /** Reemplaza el calendario de disponibilidad completo por la lista de días dada. */
-    public void setAvailability(List<AvailabilityDay> days) {
-        availability.clear();
-        for (AvailabilityDay d : days) {
+    // public void setAvailability(List<AvailabilityDay> days) {
+    //     availability.clear();
+    //     for (AvailabilityDay d : days) {
+    //         PropertyAvailability a = new PropertyAvailability();
+    //         a.setProperty(this);
+    //         a.setDate(d.date());
+    //         a.setStatus(d.status());
+    //         availability.add(a);
+    //     }
+    // }
+
+
+    /**
+ * Reemplaza el calendario de disponibilidad completo por la lista de días dada.
+ *
+ * OJO: no hace availability.clear() + recrear todo, porque eso agenda un DELETE
+ * para TODAS las filas existentes y un INSERT para TODAS las nuevas, incluso para
+ * fechas que no cambiaron. Como el DELETE y el INSERT pueden pisarse en el mismo
+ * flush (el INSERT puede ejecutarse antes que el DELETE correspondiente), eso
+ * dispara una violación de la constraint única (PropertyId, Date) cuando una
+ * fecha ya existía. Por eso acá se actualiza in-place lo que coincide en fecha,
+ * se borra solo lo que ya no está, y se agrega solo lo genuinamente nuevo.
+ */
+public void setAvailability(List<AvailabilityDay> days) {
+    // Fechas que van a quedar después de esta operación.
+    java.util.Set<LocalDate> nuevasFechas = days.stream()
+            .map(AvailabilityDay::date)
+            .collect(java.util.stream.Collectors.toSet());
+
+    // Borra solo los días existentes que ya no están en la lista nueva.
+    availability.removeIf(existente -> !nuevasFechas.contains(existente.getDate()));
+
+    // Mapa de lo que quedó (los que no se borraron), por fecha, para hacer update in-place.
+    java.util.Map<LocalDate, PropertyAvailability> existentesPorFecha = new java.util.HashMap<>();
+    for (PropertyAvailability a : availability) {
+        existentesPorFecha.put(a.getDate(), a);
+    }
+
+    for (AvailabilityDay d : days) {
+        PropertyAvailability existente = existentesPorFecha.get(d.date());
+        if (existente != null) {
+            // Ya existía esa fecha: solo actualiza el estado, sin tocar la fila en la base.
+            existente.setStatus(d.status());
+        } else {
+            // Fecha nueva: se agrega una entidad nueva.
             PropertyAvailability a = new PropertyAvailability();
             a.setProperty(this);
             a.setDate(d.date());
@@ -254,6 +296,13 @@ public class Property {
             availability.add(a);
         }
     }
+}
+
+
+
+
+
+
 
     /**
      * Crea una copia de esta propiedad (funcionalidad "Duplicar" del admin).
