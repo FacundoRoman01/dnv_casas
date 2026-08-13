@@ -8,6 +8,7 @@ import com.dnvcasas.domain.exception.DomainException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,10 +25,13 @@ import java.util.*;
  * DETALLES técnicos (escribir bytes en disco, validar magic bytes, armar la URL).
  *
  * Se llama "Local" porque escribe en el filesystem de la máquina. Si mañana se guarda
- * en S3 u otro storage, se hace otro adapter que implemente el mismo port y no cambia
- * nada de application.
+ * en Cloudinary, S3 u otro storage, se hace otro adapter que implemente el mismo port
+ * y no cambia nada de application.
+ *
+ * Se activa por defecto, o cuando el perfil "cloudinary" NO está activo.
  */
 @Service
+@Profile("!cloudinary")
 public class LocalImageService implements ImageService {
 
     private static final Logger log = LoggerFactory.getLogger(LocalImageService.class);
@@ -73,6 +77,7 @@ public class LocalImageService implements ImageService {
             // Nos aseguramos de que la carpeta exista al arrancar. Si no se puede crear,
             // fallamos temprano: sin carpeta no hay dónde guardar nada.
             Files.createDirectories(uploadsPath);
+            log.info("Servicio de imágenes configurado para usar almacenamiento local en '{}'", uploadsPath.toAbsolutePath());
         } catch (IOException e) {
             throw new IllegalStateException("No se pudo crear el directorio de uploads", e);
         }

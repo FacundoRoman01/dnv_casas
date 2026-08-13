@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
   # Sin esto, docker compose down / un deploy corta los requests en vuelo de
   # golpe: un POST a mitad de camino queda sin respuesta y el cliente ve un
   # error de red.
@@ -19,6 +19,8 @@ management:
       show-details: when-authorized
 
 spring:
+  profiles:
+    active: cloudinary
   application:
     name: dnvcasas
   servlet:
@@ -88,6 +90,13 @@ uploads:
   # Vacío = {cwd}/wwwroot/uploads, el mismo fallback del C#.
   physical-path: ${UPLOADS_PHYSICAL_PATH:}
   url-path: ${UPLOADS_URL_PATH:/uploads}
+
+cloudinary:
+  # URL de conexión de Cloudinary. Es la forma más segura y recomendada de
+  # configurar el SDK, ya que agrupa todas las credenciales en una sola
+  # variable de entorno. Formato: cloudinary://api_key:api_secret@cloud_name
+  url: ${CLOUDINARY_URL}
+  folder: ${CLOUDINARY_FOLDER}
 
 logging:
   level:

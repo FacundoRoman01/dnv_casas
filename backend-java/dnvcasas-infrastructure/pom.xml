@@ -50,5 +50,11 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
     </dependency>
+    <!-- Dependencia para la integración con Cloudinary -->
+    <dependency> 
+      <groupId>com.cloudinary</groupId>
+      <artifactId>cloudinary-http44</artifactId> 
+      <version>1.38.0</version>
+    </dependency>
   </dependencies>
 </project>

@@ -38,6 +38,9 @@ services:
       UPLOADS_URL_PATH: /uploads
       # Swagger solo en desarrollo, como hacía el .NET con IsDevelopment().
       SWAGGER_ENABLED: ${SWAGGER_ENABLED:-true}
+      # Credenciales de Cloudinary. Sin esto, la app usa almacenamiento local.
+      CLOUDINARY_URL: ${CLOUDINARY_URL}
+      CLOUDINARY_FOLDER: ${CLOUDINARY_FOLDER:-dnvcasas-dev}
     ports:
       - "5254:8080"
     volumes:

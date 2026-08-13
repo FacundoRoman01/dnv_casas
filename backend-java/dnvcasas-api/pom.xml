@@ -12,7 +12,7 @@
   <name>DNV Casas :: API</name>
   <dependencies>
     <dependency>
-      <groupId>com.dnvcasas</groupId>
+      <groupId>com.dnvcasas</groupId> 
       <artifactId>dnvcasas-infrastructure</artifactId>
     </dependency>
     <dependency>
