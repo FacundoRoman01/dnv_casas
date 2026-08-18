@@ -47,6 +47,16 @@ const AMENITY_MAP = {
 const PROPERTY_TYPE_LABELS = { 0: "Casa", 1: "Departamento", 2: "Cabaña", 3: "Loft", 4: "Otro" }
 
 // ─── CALENDAR ─────────────────────────────────────────────────────────────────
+
+// Inserta las transformaciones f_auto,q_auto en una URL de Cloudinary para que
+// se sirva en el mejor formato (WebP/AVIF) y con la calidad óptima según el
+// caso. No modifica URLs que no sean de Cloudinary (ej. el fallback de Unsplash
+// o alguna imagen vieja del storage local).
+function optimizeCloudinaryUrl(url) {
+  if (!url || !url.includes("res.cloudinary.com")) return url
+  return url.replace("/upload/", "/upload/f_auto,q_auto/")
+}
+
 // Fecha -> string "YYYY-MM-DD" en horario LOCAL (no UTC). Usamos esto y no
 // toISOString() para que no se corra un día por zona horaria.
 function toLocalISODate(date) {
@@ -177,8 +187,8 @@ const [lbOpen, setLbOpen]   = useState(false)
 
   // gallery images — always build 5 cells for the mosaic
   const rawImages = property.images?.length
-    ? [...property.images].sort((a, b) => a.displayOrder - b.displayOrder).map(i => i.url)
-    : [property.coverImageUrl || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200"]
+    ? [...property.images].sort((a, b) => a.displayOrder - b.displayOrder).map(i => optimizeCloudinaryUrl(i.url))
+    : [optimizeCloudinaryUrl(property.coverImageUrl) || "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200"]
   const fallback = rawImages[0]
   const allImages = rawImages.length >= 5
     ? rawImages

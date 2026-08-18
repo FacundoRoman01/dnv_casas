@@ -14,4 +14,12 @@ public interface ImageJpaRepository extends JpaRepository<PropertyImage, Integer
 
     /** Todas las imágenes de una propiedad. Query derivada del nombre del método. */
     List<PropertyImage> findByPropertyId(int propertyId);
+
+    /**
+     * Cuenta cuántas imágenes tiene una propiedad, sin traer los registros completos.
+     * Se usa para validar el límite máximo de fotos antes de aceptar un upload:
+     * es una query SELECT COUNT(*), mucho más liviana que traer toda la lista
+     * solo para hacer .size() en memoria.
+     */
+    long countByPropertyId(int propertyId);
 }

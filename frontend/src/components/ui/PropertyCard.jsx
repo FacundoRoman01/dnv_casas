@@ -11,6 +11,14 @@ const TAG_LABELS = { 0: "Alquiler", 1: "Intercambio", 2: "Compra" }
 
 const FALLBACK = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600"
 
+// Inserta las transformaciones f_auto,q_auto en una URL de Cloudinary para que
+// se sirva en el mejor formato (WebP/AVIF) y con la calidad óptima según el
+// caso. No modifica URLs que no sean de Cloudinary (ej. el fallback de Unsplash).
+function optimizeCloudinaryUrl(url) {
+  if (!url || !url.includes("res.cloudinary.com")) return url
+  return url.replace("/upload/", "/upload/f_auto,q_auto/")
+}
+
 /**
  * Card de propiedad del catálogo (alquiler/intercambio/compra) y del carrusel de
  * destacadas del home. Toda la tarjeta es un Link a la ficha.
@@ -23,7 +31,7 @@ const FALLBACK = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w
 // "swap" forces intercambio display (green accent, no price row)
 export default function PropertyCard({ property, variant = "default" }) {
   const isSwap = variant === "swap"
-  const cover = property.coverImageUrl || FALLBACK
+  const cover = optimizeCloudinaryUrl(property.coverImageUrl) || FALLBACK
   // Categoría efectiva: en modo swap forzamos 1 (intercambio); si no, la del back (default 0).
   const cat = isSwap ? 1 : (property.category ?? 0)
   const tag = TAG_STYLES[cat] ?? TAG_STYLES[0]
@@ -47,7 +55,7 @@ export default function PropertyCard({ property, variant = "default" }) {
       to={detailPath}
       className="group block"
       style={{
-        width: "340px",
+        width: "100%",
         background: "#fff",
         borderRadius: "28px",
         overflow: "hidden",
@@ -112,32 +120,6 @@ export default function PropertyCard({ property, variant = "default" }) {
           </span>
         </div>
 
-        {/* Fav button — only on non-swap */}
-        {!isSwap && (
-          <button
-            aria-label="Guardar en favoritos"
-            onClick={e => e.preventDefault()}
-            style={{
-              position: "absolute",
-              top: 14,
-              right: 14,
-              width: 38,
-              height: 38,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,.12)",
-              backdropFilter: "blur(10px)",
-              WebkitBackdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,.25)",
-              display: "grid",
-              placeItems: "center",
-              cursor: "pointer",
-            }}
-          >
-            <svg width={18} height={18} fill="none" stroke="#fff" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-            </svg>
-          </button>
-        )}
       </div>
 
       {/* Body */}
@@ -152,10 +134,24 @@ export default function PropertyCard({ property, variant = "default" }) {
           {property.neighborhood ? ` · ${property.neighborhood}` : ""}
         </div>
 
-        {/* Title */}
-        <h3 style={{ fontSize: 21, fontWeight: 500, letterSpacing: "-.015em", marginBottom: 14, color: "#14171B", lineHeight: 1.2 }}>
-          {property.title}
-        </h3>
+ {/* Title — altura fija de 2 líneas para que todas las cards alineen igual,
+    sin importar si el título es corto (1 línea) o largo (2 líneas). Si el
+    título ocupara una 3ra línea, se corta con "..." (line-clamp). */}
+<h3 style={{
+  fontSize: 21,
+  fontWeight: 500,
+  letterSpacing: "-.015em",
+  marginBottom: 14,
+  color: "#14171B",
+  lineHeight: 1.2,
+  minHeight: "2.4em",
+  display: "-webkit-box",
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+}}>
+  {property.title}
+</h3>
 
         {/* Specs */}
         <div style={{ display: "flex", gap: 16, marginBottom: 18, flexWrap: "wrap" }}>

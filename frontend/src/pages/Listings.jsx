@@ -5,6 +5,7 @@ import PropertyCard from "../components/ui/PropertyCard"
 import { whatsappLink } from "../lib/whatsapp"
 import { CATEGORY_MAP, PROPERTY_TYPE_MAP, PROPERTY_TYPE_IMAP } from "../lib/constants"
 import { usePageMeta } from "../hooks/usePageMeta"
+import Modal from "../components/ui/Modal"
 
 /**
  * Página del catálogo de ALQUILERES e INTERCAMBIOS (una sola página que sirve
@@ -118,23 +119,24 @@ function SearchBar({ filters, updateFilter, destinations }) {
     </form>
   )
 }
-
 // Bloque explicativo "Cómo funciona" que se muestra solo en intercambios.
 function ComoFunciona() {
   const steps = [
-    { n: 1, text: "Explorás los hogares disponibles" },
-    { n: 2, text: "Encontrás tu match" },
-    { n: 3, text: "Nos contactás por WhatsApp" },
+    { n: 1, text: "Explorá las casas disponibles" },
+    { n: 2, text: "Proponé un intercambio" },
+    { n: 3, text: "Nosotros gestionamos el acuerdo" },
     { n: 4, text: "Intercambian y viajan" },
   ]
+  const [modalOpen, setModalOpen] = useState(false)
+
   return (
     <div style={{ background: "#fff", border: "1.5px solid rgba(107,181,149,.35)", borderRadius: 20, padding: "22px 24px", marginBottom: 24, boxShadow: "0 2px 10px rgba(107,181,149,.08)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".13em", textTransform: "uppercase", color: "#4F9C7C", margin: 0 }}>Cómo funciona</p>
-        <Link to="/intercambios" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: "rgba(107,181,149,.14)", color: "#4F9C7C", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+        <button onClick={() => setModalOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: "rgba(107,181,149,.14)", color: "#4F9C7C", fontSize: 13.5, fontWeight: 600, border: "none", cursor: "pointer" }}>
           Conocer más
           <svg width={16} height={16} fill="none" stroke="#4F9C7C" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-        </Link>
+        </button>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "14px 20px" }}>
         {steps.map(s => (
@@ -148,6 +150,20 @@ function ComoFunciona() {
         <svg width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         El intercambio puede ser simultáneo o diferido
       </p>
+
+      {modalOpen && (
+        <Modal onClose={() => setModalOpen(false)}>
+          <h2 style={{ fontSize: 24, fontWeight: 600, color: "#14171B", marginBottom: 12 }}>
+            ¿Cómo funciona el intercambio de casas?
+          </h2>
+          <p style={{ color: "#67717F", lineHeight: 1.6, marginBottom: 24 }}>
+            El intercambio de casas te permite disfrutar de vacaciones en nuevos destinos sin costo de alojamiento. Simplemente ofrecés tu casa y elegís otra de la comunidad para tu estadía. Nosotros nos encargamos de conectar a las familias y facilitar el acuerdo para que la experiencia sea segura y transparente.
+          </p>
+          <Link to="/intercambios" className="inline-block text-white font-semibold rounded-full px-6 py-3" style={{ background: "#6BB595", textDecoration: "none" }}>
+            Ver más detalles y preguntas frecuentes
+          </Link>
+        </Modal>
+      )}
     </div>
   )
 }

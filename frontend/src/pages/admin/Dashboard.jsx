@@ -11,6 +11,14 @@ const STATUS_BADGE = {
   1: "bg-yellow-100 text-yellow-700",
   2: "bg-red-100 text-red-700",
 }
+
+// Inserta las transformaciones f_auto,q_auto en una URL de Cloudinary para que
+// se sirva en el mejor formato (WebP/AVIF) y con la calidad óptima según el
+// caso. No modifica URLs que no sean de Cloudinary (ej. el fallback de Unsplash).
+function optimizeCloudinaryUrl(url) {
+  if (!url || !url.includes("res.cloudinary.com")) return url
+  return url.replace("/upload/", "/upload/f_auto,q_auto/")
+}
 const STATUS_LABEL = { 0: "Activa", 1: "Pausada", 2: "Eliminada" }
 
 /**
@@ -183,7 +191,7 @@ export default function Dashboard() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {p.coverImageUrl && (
-                        <img src={p.coverImageUrl} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                        <img src={optimizeCloudinaryUrl(p.coverImageUrl)} alt="" className="w-10 h-10 rounded-lg object-cover" />
                       )}
                       <span className="font-medium text-primary">{p.title}</span>
                     </div>

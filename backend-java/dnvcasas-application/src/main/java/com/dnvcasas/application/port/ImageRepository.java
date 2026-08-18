@@ -28,4 +28,11 @@ public interface ImageRepository {
      * la lista es el orden final de visualización).
      */
     void reorder(int propertyId, List<Integer> orderedImageIds);
+
+    /**
+     * Cuenta cuántas imágenes tiene una propiedad. Se usa para validar el límite
+     * máximo antes de aceptar un upload nuevo, sin tener que traer todas las
+     * imágenes a memoria solo para contar cuántas son.
+     */
+    long countByPropertyId(int propertyId);
 }

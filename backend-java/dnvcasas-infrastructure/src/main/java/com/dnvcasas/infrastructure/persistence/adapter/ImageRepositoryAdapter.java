@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Adapter de persistencia para imágenes. Implementa el port {@link ImageRepository}
  * (capa application) sobre {@link ImageJpaRepository}. Solo se ocupa del metadato en
- * la base; los archivos físicos los maneja {@code LocalImageService}.
+ * la base; los archivos físicos los maneja {@code LocalImageService} o Cloudinary.
  */
 @Repository
 public class ImageRepositoryAdapter implements ImageRepository {
@@ -55,5 +55,12 @@ public class ImageRepositoryAdapter implements ImageRepository {
         List<PropertyImage> images = jpa.findByPropertyId(propertyId);
         PropertyImage.reorder(images, orderedImageIds);
         jpa.saveAllAndFlush(images);
+    }
+
+    /** Cuenta las imágenes de una propiedad con un SELECT COUNT(*), sin traerlas a memoria. */
+    @Override
+    @Transactional(readOnly = true)
+    public long countByPropertyId(int propertyId) {
+        return jpa.countByPropertyId(propertyId);
     }
 }

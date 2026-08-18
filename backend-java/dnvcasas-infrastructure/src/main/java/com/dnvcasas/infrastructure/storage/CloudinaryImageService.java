@@ -26,6 +26,11 @@ public class CloudinaryImageService implements ImageService {
     private static final Set<String> EXTENSIONES_PERMITIDAS =
             new LinkedHashSet<>(List.of(".jpg", ".jpeg", ".png", ".webp"));
 
+    // Tope de fotos por propiedad. Cuida créditos de Cloudinary (storage +
+    // bandwidth) y mantiene la galería usable — más de esto ya degrada la UX
+    // y el tiempo de carga de la página en vez de ayudar.
+    private static final int MAX_IMAGENES_POR_PROPIEDAD = 30;
+
     private final ImageRepository repo;
     private final Cloudinary cloudinary;
     private final String cloudinaryFolder;
@@ -48,6 +53,14 @@ public class CloudinaryImageService implements ImageService {
 
         if (file.getSize() > MAX_BYTES)
             throw new DomainException("El archivo no puede superar los 10 MB");
+
+        // Chequeo del límite ANTES de subir nada a Cloudinary: si ya está en el
+        // tope, cortamos acá y no gastamos ni un byte de storage/bandwidth en
+        // un upload que vamos a rechazar igual.
+        long actuales = repo.countByPropertyId(propertyId);
+        if (actuales >= MAX_IMAGENES_POR_PROPIEDAD)
+            throw new DomainException(
+                    "Esta propiedad ya alcanzó el máximo de " + MAX_IMAGENES_POR_PROPIEDAD + " fotos");
 
         String publicId;
         String url;

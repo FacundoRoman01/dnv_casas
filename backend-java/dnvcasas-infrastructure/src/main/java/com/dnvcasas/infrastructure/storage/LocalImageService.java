@@ -39,6 +39,10 @@ public class LocalImageService implements ImageService {
     // Tope de tamaño: 10 MB por archivo.
     private static final long MAX_BYTES = 10L * 1024 * 1024;
 
+    // Tope de fotos por propiedad. Mismo valor que CloudinaryImageService: la
+    // regla de negocio no depende de dónde se guarde el archivo.
+    private static final int MAX_IMAGENES_POR_PROPIEDAD = 30;
+
     // Extensiones aceptadas. LinkedHashSet para conservar el orden al listarlas en el
     // mensaje de error (que salga siempre igual: jpg, jpeg, png, webp).
     private static final Set<String> EXTENSIONES_PERMITIDAS =
@@ -84,14 +88,16 @@ public class LocalImageService implements ImageService {
     }
 
     /**
-     * Sube un archivo: valida extensión, tamaño y contenido real (magic bytes), lo
-     * escribe en disco con un nombre aleatorio y registra el metadato en la base.
+     * Sube un archivo: valida extensión, tamaño, límite de cantidad y contenido real
+     * (magic bytes), lo escribe en disco con un nombre aleatorio y registra el
+     * metadato en la base.
      *
      * @param propertyId id de la propiedad dueña de la imagen.
      * @param file       archivo recibido en el multipart del request.
      * @return DTO con los datos de la imagen ya guardada (id, url, orden, si es portada).
-     * @throws DomainException       si la extensión no está permitida, supera 10 MB o el
-     *                               contenido no coincide con la extensión.
+     * @throws DomainException       si la extensión no está permitida, supera 10 MB, ya
+     *                               se alcanzó el máximo de fotos, o el contenido no
+     *                               coincide con la extensión.
      * @throws IllegalStateException si falla la escritura en disco.
      */
     @Override
@@ -104,6 +110,13 @@ public class LocalImageService implements ImageService {
 
         if (file.getSize() > MAX_BYTES)
             throw new DomainException("El archivo no puede superar los 10 MB");
+
+        // Chequeo del límite ANTES de tocar el disco: si ya está en el tope, cortamos
+        // acá y no escribimos un archivo que vamos a rechazar igual.
+        long actuales = repo.countByPropertyId(propertyId);
+        if (actuales >= MAX_IMAGENES_POR_PROPIEDAD)
+            throw new DomainException(
+                    "Esta propiedad ya alcanzó el máximo de " + MAX_IMAGENES_POR_PROPIEDAD + " fotos");
 
         // Nombre aleatorio (UUID) para evitar colisiones y no exponer el nombre original
         // del usuario. Conservamos la extensión validada.
