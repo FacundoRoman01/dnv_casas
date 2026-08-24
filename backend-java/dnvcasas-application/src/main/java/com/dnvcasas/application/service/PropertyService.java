@@ -119,7 +119,7 @@ public class PropertyService {
         Property property = Property.create(
                 dto.title(), dto.description(), dto.category(), dto.propertyType(),
                 dto.destinationId(), dto.neighborhood(),
-                money(dto), specs(dto), dto.whatsAppMessage());
+                money(dto), specs(dto), dto.whatsAppMessage(), dto.youtubeUrl());
 
         property.replaceAmenities(dto.amenities() == null ? List.of() : dto.amenities());
         property.replaceSeasonPrices(seasons(dto));
@@ -136,7 +136,7 @@ public class PropertyService {
         return repo.findById(id).map(entity -> {
             entity.update(dto.title(), dto.description(), dto.category(), dto.propertyType(),
                     dto.destinationId(), dto.neighborhood(),
-                    money(dto), specs(dto), dto.whatsAppMessage());
+                    money(dto), specs(dto), dto.whatsAppMessage(), dto.youtubeUrl());
             entity.replaceAmenities(dto.amenities() == null ? List.of() : dto.amenities());
             entity.replaceSeasonPrices(seasons(dto));
             repo.update(entity);
@@ -311,7 +311,8 @@ public boolean updateAvailability(int id, UpdateAvailabilityDto dto) {
                 p.getAvailability().stream()
                         .map(a -> new PropertyAvailabilityDto(a.getDate(), a.getStatus()))
                         .toList(),
-                p.isFeatured());
+                p.isFeatured(),
+                p.getYoutubeUrl());
     }
 
     // Elige la URL de portada: primero la imagen marcada isCover; si ninguna lo está, cae a

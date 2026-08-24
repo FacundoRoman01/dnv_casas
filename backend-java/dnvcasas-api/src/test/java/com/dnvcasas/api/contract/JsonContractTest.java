@@ -30,6 +30,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * (85000.00 y no 85000) y sin notación científica, los enums como número, el
  * prefijo "is" en isFeatured/isCover, y sobre todo el ORDEN exacto de los campos
  * de cada DTO.
+ *
+ * Nota: youtubeUrl se agregó al final de PropertyDto (después de isFeatured),
+ * por eso va último tanto en el constructor de unaPropiedad() como en la lista
+ * esperada de propertyDto_ordenDeCampos — no rompe el resto del contrato golden
+ * original, que sigue intacto en el mismo orden.
  */
 @JsonTest
 @Import(JacksonConfig.class)
@@ -55,7 +60,7 @@ class JsonContractTest {
                 List.of(new PropertySeasonPriceDto(1, "Alta", new BigDecimal("100.00"),
                         LocalDate.of(2027, 1, 1), LocalDate.of(2027, 2, 1))),
                 List.of(new PropertyAvailabilityDto(LocalDate.of(2027, 1, 5), AvailabilityStatus.UNAVAILABLE)),
-                false);
+                false, null);
     }
 
     @Test
@@ -151,10 +156,12 @@ class JsonContractTest {
         assertThat(json).doesNotContain("\"cover\":");
     }
 
-    // El corazón del contrato: los 25 campos del detalle tienen que salir en este
+    // El corazón del contrato: los campos del detalle tienen que salir en este
     // orden exacto. Si alguien agrega/mueve un campo del DTO, este test lo caza.
+    // youtubeUrl se agregó AL FINAL a propósito (ver nota de la clase), así que
+    // el orden original de los 25 campos golden queda intacto y youtubeUrl es el 26.
     @Test
-    @DisplayName("PropertyDto: los 25 campos en el orden exacto del .NET")
+    @DisplayName("PropertyDto: los campos en el orden exacto del contrato (25 originales + youtubeUrl al final)")
     void propertyDto_ordenDeCampos() throws Exception {
         String json = mapper.writeValueAsString(
                 unaPropiedad(LocalDateTime.now(), BigDecimal.ONE));
@@ -165,7 +172,8 @@ class JsonContractTest {
                 "price", "priceLabel", "currency",
                 "bedrooms", "bathrooms", "squareMeters", "landSize", "capacity",
                 "status", "whatsAppMessage", "createdAt", "coverImageUrl",
-                "images", "amenities", "seasonPrices", "availability", "isFeatured");
+                "images", "amenities", "seasonPrices", "availability", "isFeatured",
+                "youtubeUrl");
     }
 
     @Test

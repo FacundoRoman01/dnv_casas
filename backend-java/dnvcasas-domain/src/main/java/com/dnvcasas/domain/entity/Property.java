@@ -15,6 +15,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Aggregate root del catálogo: la pieza central del dominio. Una propiedad (casa,
@@ -37,6 +38,12 @@ import java.util.List;
 @Entity
 @Table(name = "Properties")
 public class Property {
+
+    // Acepta youtube.com/watch?v=XXXX, youtu.be/XXXX, y variantes con www./https?
+    // No exige protocolo para tolerar que alguien pegue la URL sin "https://".
+    private static final Pattern YOUTUBE_URL_PATTERN = Pattern.compile(
+            "^(https?://)?(www\\.)?(youtube\\.com/watch\\?v=[\\w-]+.*|youtu\\.be/[\\w-]+.*|youtube\\.com/embed/[\\w-]+.*)$",
+            Pattern.CASE_INSENSITIVE);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -86,6 +93,11 @@ public class Property {
     @Column(name = "WhatsAppMessage", columnDefinition = "longtext", nullable = false)
     private String whatsAppMessage = "";
 
+    // Link de YouTube opcional para mostrar un video de recorrido de la propiedad.
+    // Nullable en la base porque no todas las propiedades van a tener uno cargado.
+    @Column(name = "YoutubeUrl", length = 500, nullable = true)
+    private String youtubeUrl;
+
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
@@ -113,16 +125,19 @@ public class Property {
 
     /**
      * Fábrica para crear una propiedad nueva. Valida las reglas básicas (título,
-     * descripción, precio) antes de construirla, la deja ACTIVE y sella el createdAt.
+     * descripción, precio, formato de link de YouTube) antes de construirla, la
+     * deja ACTIVE y sella el createdAt.
      *
-     * @throws DomainException si el título/descr. faltan o si un intercambio trae precio.
+     * @throws DomainException si el título/descr. faltan, si un intercambio trae
+     *                         precio, o si youtubeUrl no tiene formato válido.
      */
     public static Property create(String title, String description,
                                   PropertyCategory category, PropertyType propertyType,
                                   int destinationId, String neighborhood,
                                   Money price, PropertySpecs specs,
-                                  String whatsAppMessage) {
+                                  String whatsAppMessage, String youtubeUrl) {
         validar(title, description, category, price);
+        validarYoutubeUrl(youtubeUrl);
 
         Property p = new Property();
         p.title = title.trim();
@@ -134,6 +149,7 @@ public class Property {
         p.price = price;
         p.specs = specs;
         p.whatsAppMessage = whatsAppMessage == null ? "" : whatsAppMessage;
+        p.youtubeUrl = normalizarYoutubeUrl(youtubeUrl);
         p.status = PropertyStatus.ACTIVE;
         p.isFeatured = false;
         // createdAt siempre en UTC: el contrato JSON con el frontend espera la fecha
@@ -148,10 +164,12 @@ public class Property {
      */
     public void update(String title, String description, PropertyCategory category,
                        PropertyType propertyType, int destinationId, String neighborhood,
-                       Money price, PropertySpecs specs, String whatsAppMessage) {
+                       Money price, PropertySpecs specs, String whatsAppMessage,
+                       String youtubeUrl) {
         if (status == PropertyStatus.DELETED)
             throw new DomainException("No se puede modificar una propiedad eliminada");
         validar(title, description, category, price);
+        validarYoutubeUrl(youtubeUrl);
 
         this.title = title.trim();
         this.description = description.trim();
@@ -162,6 +180,7 @@ public class Property {
         this.price = price;
         this.specs = specs;
         this.whatsAppMessage = whatsAppMessage == null ? "" : whatsAppMessage;
+        this.youtubeUrl = normalizarYoutubeUrl(youtubeUrl);
     }
 
     // --- Métodos de la máquina de estados. Cada uno valida desde qué estado se
@@ -298,12 +317,6 @@ public void setAvailability(List<AvailabilityDay> days) {
     }
 }
 
-
-
-
-
-
-
     /**
      * Crea una copia de esta propiedad (funcionalidad "Duplicar" del admin).
      * La copia arranca PAUSED y sin destacar, con "(copia)" en el título y un
@@ -327,6 +340,7 @@ public void setAvailability(List<AvailabilityDay> days) {
         c.price = price;
         c.specs = specs;
         c.whatsAppMessage = whatsAppMessage;
+        c.youtubeUrl = youtubeUrl;
         c.status = PropertyStatus.PAUSED;
         c.isFeatured = false;
         c.createdAt = LocalDateTime.now(ZoneOffset.UTC);
@@ -346,6 +360,22 @@ public void setAvailability(List<AvailabilityDay> days) {
             throw new DomainException("Una propiedad de intercambio no puede tener precio");
     }
 
+    // El link de YouTube es opcional: si viene vacío/null no se valida nada. Si
+    // viene con contenido, tiene que matchear el formato esperado (watch?v=,
+    // youtu.be/, o embed/), para no guardar cualquier URL rota o de otro sitio.
+    private static void validarYoutubeUrl(String youtubeUrl) {
+        if (isBlank(youtubeUrl)) return;
+        if (!YOUTUBE_URL_PATTERN.matcher(youtubeUrl.trim()).matches())
+            throw new DomainException("El link de YouTube no es válido. Usá una URL como "
+                    + "https://www.youtube.com/watch?v=XXXXXXXXXXX o https://youtu.be/XXXXXXXXXXX");
+    }
+
+    // Normaliza a null si viene vacío/blank, o al string trimeado si tiene contenido.
+    // Evita guardar "" en la base cuando en realidad es "sin video".
+    private static String normalizarYoutubeUrl(String youtubeUrl) {
+        return isBlank(youtubeUrl) ? null : youtubeUrl.trim();
+    }
+
     private static boolean isBlank(String s) {
         return s == null || s.isBlank();
     }
@@ -361,6 +391,7 @@ public void setAvailability(List<AvailabilityDay> days) {
     public PropertyStatus getStatus()     { return status; }
     public boolean isFeatured()           { return isFeatured; }
     public String getWhatsAppMessage()    { return whatsAppMessage; }
+    public String getYoutubeUrl()         { return youtubeUrl; }
     public LocalDateTime getCreatedAt()   { return createdAt; }
 
     // Si no hay precio guardado, devolvemos "a consultar" en vez de null, así

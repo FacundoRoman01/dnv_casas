@@ -31,6 +31,7 @@ const Icons = {
   close: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>,
   arrowL: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/></svg>,
   arrowR: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>,
+  play: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"/></svg>,
 }
 
 const AMENITY_MAP = {
@@ -55,6 +56,18 @@ const PROPERTY_TYPE_LABELS = { 0: "Casa", 1: "Departamento", 2: "Cabaña", 3: "L
 function optimizeCloudinaryUrl(url) {
   if (!url || !url.includes("res.cloudinary.com")) return url
   return url.replace("/upload/", "/upload/f_auto,q_auto/")
+}
+
+// Extrae el ID de un video de YouTube desde cualquiera de sus formatos de URL
+// comunes (watch?v=, youtu.be/, embed/), para poder armar la URL de embed que
+// pide el iframe. Devuelve null si no matchea ningún formato conocido, así el
+// bloque del video simplemente no se muestra en vez de romper con una URL rota.
+function extractYoutubeId(url) {
+  if (!url) return null
+  const match = url.match(
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/
+  )
+  return match ? match[1] : null
 }
 
 // Fecha -> string "YYYY-MM-DD" en horario LOCAL (no UTC). Usamos esto y no
@@ -194,6 +207,10 @@ const [lbOpen, setLbOpen]   = useState(false)
     ? rawImages
     : [...rawImages, ...Array(5 - rawImages.length).fill(fallback)]
   const displayImages = allImages.slice(0, 5)
+
+  // Video de YouTube (opcional): si youtubeUrl no matchea un formato conocido,
+  // youtubeVideoId queda null y la sección de video simplemente no se renderiza.
+  const youtubeVideoId = extractYoutubeId(property.youtubeUrl)
 
   // Noches elegidas (para el mensaje de WhatsApp): diferencia en ms / ms-por-día.
   const nights = sel.in && sel.out
@@ -371,6 +388,31 @@ const canGoBack = monthOffset > 0
                 <strong style={{ color: "#1a1a2e" }}>Te acompañamos en cada paso:</strong> coordinás todo con una persona real por WhatsApp, sin formularios ni pagos online.
               </div>
             </div>
+
+            {/* RECORRÉ LA PROPIEDAD — video de YouTube, solo si la propiedad tiene
+                uno cargado y la URL matcheó un formato válido (youtubeVideoId). El
+                aspect-ratio 16:9 vía padding-top se usa porque es la técnica clásica
+                para mantener proporción en un iframe responsive sin JS adicional. */}
+            {youtubeVideoId && (
+              <div style={sectionStyle}>
+                <h2 style={{ fontSize: "26px", fontWeight: 400, color: "#1a1a2e", marginBottom: "6px", display: "flex", alignItems: "center", gap: 10 }}>
+                  {Icons.play}
+                  Recorré la propiedad
+                </h2>
+                <p style={{ fontSize: "14.5px", color: "#67717F", marginBottom: "16px" }}>
+                  Un video para que conozcas cada rincón antes de decidir.
+                </p>
+                <div style={{ position: "relative", paddingTop: "56.25%", borderRadius: "20px", overflow: "hidden", background: "#000" }}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${youtubeVideoId}`}
+                    title={`Video de ${property.title}`}
+                    style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            )}
 
             {/* QUÉ OFRECE */}
             {(property.amenities?.length > 0) && (

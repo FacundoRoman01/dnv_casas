@@ -55,6 +55,12 @@ public record CreateUpdatePropertyDto(
 
     String whatsAppMessage,
 
+    // Link de YouTube opcional (recorrido en video de la propiedad). Puede venir
+    // null o vacío; el formato lo valida el dominio (Property.validarYoutubeUrl),
+    // no acá, para no duplicar la regla en dos capas.
+    @Size(max = 500, message = "El link de YouTube es demasiado largo")
+    String youtubeUrl,
+
     // Mensaje en inglés a propósito: viene calcado del contrato de errores del backend .NET.
     @NotNull(message = "The Amenities field is required.")
     List<String> amenities,
