@@ -403,7 +403,7 @@ export default function ComprasDetail() {
   return (
     <>
       <div style={{ paddingTop: 108, background: "#fff" }}>
-        <div className="container px-4 lg:px-6">
+        <div className="max-w-6xl mx-auto px-6">
           {/* Breadcrumb */}
           <div style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 13.5, color: C.muted, marginBottom: 12 }}>
             <Link to="/" style={{ color: C.muted, textDecoration: "none" }}>Inicio</Link>
@@ -510,22 +510,24 @@ export default function ComprasDetail() {
         </div>
       </div>
 
-      {/* Related */}
+    {/* Related */}
       {related.length > 0 && (
         <section style={{ background: C.paper, padding: "64px 0 80px" }}>
-          <div className="container px-4 lg:px-6">
-            <div style={{ marginBottom: 34 }}>
-              <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: C.goldDeep }}>
-                Más oportunidades
-              </span>
-              <h2 style={{ fontSize: 36, fontWeight: 300, letterSpacing: "-.02em", marginTop: 12, marginBottom: 0 }}>
-                Otras propiedades en venta
-              </h2>
-            </div>
-            <div style={{ display: "flex", gap: 26, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "none" }}>
-              {related.map(p => <RelCard key={p.id} property={p} />)}
-            </div>
-            <div style={{ marginTop: 28 }}>
+          {/* Mismo cambio de contenedor que arriba, para que la sección de
+              relacionadas también respete el ancho máximo y el centrado. */}
+          <div className="max-w-6xl mx-auto px-6">
+          {/* Mismo patrón que "Otras casas cerca" en PropertyDetail.jsx: el
+              título y "Ver todas" van en la misma fila, no un botón suelto
+              debajo de las cards. */}
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 34, gap: 16, flexWrap: "wrap" }}>
+              <div>
+                <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: C.goldDeep }}>
+                  Más oportunidades
+                </span>
+                <h2 style={{ fontSize: 36, fontWeight: 300, letterSpacing: "-.02em", marginTop: 12, marginBottom: 0 }}>
+                  Otras propiedades en venta
+                </h2>
+              </div>
               <Link
                 to="/compras"
                 style={{
@@ -533,6 +535,7 @@ export default function ComprasDetail() {
                   padding: "12px 22px", borderRadius: 999,
                   border: `1.5px solid ${C.line}`, color: C.ink,
                   fontWeight: 600, fontSize: 14.5, textDecoration: "none",
+                  flexShrink: 0,
                 }}
               >
                 Ver todas
@@ -540,6 +543,9 @@ export default function ComprasDetail() {
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
               </Link>
+            </div>
+            <div style={{ display: "flex", gap: 26, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "none" }}>
+              {related.map(p => <RelCard key={p.id} property={p} />)}
             </div>
           </div>
         </section>

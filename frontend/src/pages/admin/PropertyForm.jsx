@@ -13,6 +13,12 @@ const AMENITY_OPTIONS = [
   { key: "bbq", label: "Parrilla" }, { key: "linen", label: "Ropa de cama" },
   { key: "pets", label: "Pet-friendly" }, { key: "fireplace", label: "Estufa a leña" },
   { key: "pool", label: "Pileta" }, { key: "ac", label: "Aire acondicionado" },
+  { key: "heating", label: "Calefacción" }, { key: "tv", label: "TV / Cable" },
+  { key: "washer", label: "Lavarropas" }, { key: "dishwasher", label: "Lavavajillas" },
+  { key: "garden", label: "Jardín" }, { key: "terrace", label: "Terraza / Balcón" },
+  { key: "quincho", label: "Quincho" }, { key: "jacuzzi", label: "Jacuzzi" },
+  { key: "gym", label: "Gimnasio" }, { key: "security", label: "Seguridad / Alarma" },
+  { key: "elevator", label: "Ascensor" }, { key: "workspace", label: "Espacio de trabajo" },
 ]
 
 // Categorías: el value es el int exacto del enum del back (0=Alquiler, 1=Intercambio, 2=Compra).
@@ -345,7 +351,7 @@ export default function PropertyForm() {
             </div>
           )}
 
-          {/* AMENIDADES */}
+           {/* AMENIDADES */}
           {activeTab === "amenities" && (
             <div className="bg-white rounded-2xl border border-gray-100 p-6">
               <p className="text-sm text-gray-500 mb-4">Seleccioná las amenidades que incluye la propiedad.</p>

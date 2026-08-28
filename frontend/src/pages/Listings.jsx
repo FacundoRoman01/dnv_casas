@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { useProperties, useDestinations, useNeighborhoods } from "../hooks/useProperties"
 import PropertyCard from "../components/ui/PropertyCard"
@@ -315,6 +315,30 @@ export default function Listings({ type }) {
     page: 1,
     pageSize: 12,
   })
+
+  // BUGFIX: cuando se navega entre /alquileres <-> /intercambios, React Router
+  // reutiliza esta misma instancia del componente (no la remonta), así que el
+  // useState de arriba NO vuelve a ejecutarse. Sin este efecto, filters.category
+  // quedaba "pegado" al valor de la primera vez que se montó el componente: el
+  // sidebar mostraba el botón de camino equivocado y las cards no coincidían con
+  // la ruta (se veían alquileres en /intercambios y viceversa). Este effect
+  // corre cada vez que cambia `type` y resetea category al valor correcto,
+  // además del resto de filtros (mismo criterio que clearAllFilters), para no
+  // arrastrar filtros de una categoría a la otra.
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      category: CATEGORY_MAP[type],
+      neighborhood: "",
+      dateFrom: "",
+      dateTo: "",
+      guests: "",
+      bedrooms: "",
+      propertyType: "",
+      maxPrice: "",
+      page: 1,
+    }))
+  }, [type])
 
   // Sacamos los filtros vacíos antes de mandar al back: solo van los que tienen
   // valor. Ese objeto es lo que consume el hook useProperties para hacer el fetch.
