@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { useProperties, useDestinations, useNeighborhoods } from "../hooks/useProperties"
 import PropertyCard from "../components/ui/PropertyCard"
@@ -316,6 +316,11 @@ export default function Listings({ type }) {
     pageSize: 12,
   })
 
+  // Bandera para distinguir "el componente se acaba de montar" (primera vez
+  // que corre el useEffect de abajo) de "cambié de ruta y type es distinto".
+  // Ver por qué hace falta en el comentario del useEffect.
+  const isFirstRender = useRef(true)
+
   // BUGFIX: cuando se navega entre /alquileres <-> /intercambios, React Router
   // reutiliza esta misma instancia del componente (no la remonta), así que el
   // useState de arriba NO vuelve a ejecutarse. Sin este efecto, filters.category
@@ -325,7 +330,20 @@ export default function Listings({ type }) {
   // corre cada vez que cambia `type` y resetea category al valor correcto,
   // además del resto de filtros (mismo criterio que clearAllFilters), para no
   // arrastrar filtros de una categoría a la otra.
+  //
+  // OJO: un useEffect SIEMPRE corre también en el primer render, no solo cuando
+  // cambia su dependencia. Sin el chequeo de isFirstRender, este efecto pisaba
+  // las fechas/destino que venían de la query string (?dateFrom=...) apenas se
+  // montaba la página, justo después de que el useState de arriba las cargara
+  // bien — por eso "se perdía" la fecha que habías elegido en el buscador del
+  // home. Con la bandera, la primera vez el efecto no toca nada (el useState ya
+  // dejó todo bien armado); solo resetea en las veces siguientes, cuando type
+  // cambia de verdad por una navegación.
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
     setFilters(prev => ({
       ...prev,
       category: CATEGORY_MAP[type],
