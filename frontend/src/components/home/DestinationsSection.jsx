@@ -21,7 +21,11 @@ export default function DestinationsSection({ destinations }) {
   return (
     <section className="bg-[#f5f5f3] py-20 overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between items-end mb-10">
+        {/* Header responsive: en mobile pasa a columna (texto arriba, botón
+            abajo, ancho completo) para que "Ver todas las propiedades" no
+            quede apretado al lado del título y se desborde de la pantalla.
+            En md+ vuelve al layout en fila original. */}
+        <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-5 mb-10">
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: "#C9AB55" }}>
               Explorá nuestros destinos destacados
@@ -31,7 +35,7 @@ export default function DestinationsSection({ destinations }) {
               De los lagos del sur a la costa tropical: casas elegidas a mano en los rincones que más nos gustan.
             </p>
           </div>
-          <Link to="/alquileres" className="whitespace-nowrap hover:bg-gray-50 transition" style={{ border: "1.5px solid #DCE2E9", color: "#44536A", padding: "10px 22px", borderRadius: 999, fontSize: 15, fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <Link to="/alquileres" className="self-start md:self-auto md:whitespace-nowrap hover:bg-gray-50 transition" style={{ border: "1.5px solid #DCE2E9", color: "#44536A", padding: "10px 22px", borderRadius: 999, fontSize: 15, fontWeight: 500, display: "inline-flex", alignItems: "center", gap: 8 }}>
             Ver todas las propiedades
             <svg width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/></svg>
           </Link>

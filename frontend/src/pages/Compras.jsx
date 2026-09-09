@@ -209,7 +209,7 @@ export default function Compras() {
   const waStart = whatsappLink("Hola 👋 Quiero comprar una propiedad. ¿Me ayudan a encontrarla?")
 
   return (
-    <>
+   <div className="overflow-x-hidden">
       {/* ── Hero banner ───────────────────────────────────── */}
       <section style={{ position: "relative", padding: "150px 0 56px", overflow: "hidden", color: "#fff" }}>
         <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
@@ -260,40 +260,54 @@ export default function Compras() {
         background: "rgba(245,247,249,.9)", backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)", borderBottom: "1px solid #E9EDF2",
       }}>
-        <div className="max-w-7xl mx-auto px-6" style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px 0", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 13.5, fontWeight: 600, color: "#67717F", marginRight: 4 }}>Destino</span>
-          <div style={{ display: "flex", gap: 9, flexWrap: "wrap" }}>
-            {/* "Todos" chip */}
-            <button
-              onClick={() => setActiveId(null)}
-              style={{
-                padding: "9px 16px", borderRadius: 999, cursor: "pointer",
-                border: `1.5px solid ${activeId === null ? "#44536A" : "#DCE2E9"}`,
-                background: activeId === null ? "#44536A" : "#fff",
-                fontSize: 14, fontWeight: 500,
-                color: activeId === null ? "#fff" : "#67717F",
-                transition: "all .2s",
-              }}
-            >Todos</button>
-            {destinations.map(d => (
-              <button
-                key={d.id}
-                onClick={() => setActiveId(d.id)}
-                style={{
-                  padding: "9px 16px", borderRadius: 999, cursor: "pointer",
-                  border: `1.5px solid ${activeId === d.id ? "#44536A" : "#DCE2E9"}`,
-                  background: activeId === d.id ? "#44536A" : "#fff",
-                  fontSize: 14, fontWeight: 500,
-                  color: activeId === d.id ? "#fff" : "#67717F",
-                  transition: "all .2s",
-                }}
-              >{d.name}</button>
-            ))}
-          </div>
-          <span style={{ marginLeft: "auto", fontSize: 14.5, color: "#67717F" }}>
-            <b style={{ color: "#14171B", fontWeight: 600 }}>{filtered.length}</b> resultados
-          </span>
-        </div>
+      <div className="max-w-7xl mx-auto px-6" style={{ padding: "14px 0" }}>
+  {/* Línea 1: label + contador, siempre en una fila (texto corto, no se
+      desborda en ningún ancho). */}
+  <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+    <span style={{ fontSize: 13.5, fontWeight: 600, color: "#67717F" }}>Destino</span>
+    <span style={{ fontSize: 14.5, color: "#67717F" }}>
+      <b style={{ color: "#14171B", fontWeight: 600 }}>{filtered.length}</b> resultados
+    </span>
+  </div>
+
+  {/* Línea 2: chips como carrusel horizontal con scroll táctil (swipe),
+      sin wrap — mismo patrón que Airbnb/Booking para filtros en mobile.
+      -mx-6 px-6 extiende el área de scroll hasta el borde de la pantalla
+      (mejor UX táctil) sin romper el max-w-7xl del contenedor padre. */}
+  <div
+    className="flex gap-2 overflow-x-auto -mx-6 px-6"
+    style={{ scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" }}
+  >
+    {/* "Todos" chip */}
+    <button
+      onClick={() => setActiveId(null)}
+      className="flex-shrink-0 whitespace-nowrap"
+      style={{
+        padding: "9px 16px", borderRadius: 999, cursor: "pointer",
+        border: `1.5px solid ${activeId === null ? "#44536A" : "#DCE2E9"}`,
+        background: activeId === null ? "#44536A" : "#fff",
+        fontSize: 14, fontWeight: 500,
+        color: activeId === null ? "#fff" : "#67717F",
+        transition: "all .2s",
+      }}
+    >Todos</button>
+    {destinations.map(d => (
+      <button
+        key={d.id}
+        onClick={() => setActiveId(d.id)}
+        className="flex-shrink-0 whitespace-nowrap"
+        style={{
+          padding: "9px 16px", borderRadius: 999, cursor: "pointer",
+          border: `1.5px solid ${activeId === d.id ? "#44536A" : "#DCE2E9"}`,
+          background: activeId === d.id ? "#44536A" : "#fff",
+          fontSize: 14, fontWeight: 500,
+          color: activeId === d.id ? "#fff" : "#67717F",
+          transition: "all .2s",
+        }}
+      >{d.name}</button>
+    ))}
+  </div>
+</div>
       </div>
 
       {/* ── Grid ─────────────────────────────────────────── */}
@@ -318,10 +332,9 @@ export default function Compras() {
       {/* ── Acompañamiento ───────────────────────────────── */}
       <section style={{ background: "#2A3340", color: "#fff", padding: "80px 0" }}>
         <div className="max-w-7xl mx-auto px-6">
-          <div style={{
-            display: "grid", gridTemplateColumns: "1fr 1fr",
-            gap: 56, alignItems: "center",
-          }}>
+      <div className="grid grid-cols-1 md:grid-cols-2" style={{
+  gap: 56, alignItems: "center",
+}}>
             <div>
               <span style={{
                 fontSize: 13, fontWeight: 700, letterSpacing: ".12em",
@@ -382,6 +395,6 @@ export default function Compras() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   )
 }

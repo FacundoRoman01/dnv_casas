@@ -131,14 +131,14 @@ function ComoFunciona() {
 
   return (
     <div style={{ background: "#fff", border: "1.5px solid rgba(107,181,149,.35)", borderRadius: 20, padding: "22px 24px", marginBottom: 24, boxShadow: "0 2px 10px rgba(107,181,149,.08)" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+      <div className="flex flex-wrap items-center justify-between gap-3" style={{ marginBottom: 16 }}>
         <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: ".13em", textTransform: "uppercase", color: "#4F9C7C", margin: 0 }}>Cómo funciona</p>
         <button onClick={() => setModalOpen(true)} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", borderRadius: 999, background: "rgba(107,181,149,.14)", color: "#4F9C7C", fontSize: 13.5, fontWeight: 600, border: "none", cursor: "pointer" }}>
           Conocer más
           <svg width={16} height={16} fill="none" stroke="#4F9C7C" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
         </button>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "14px 20px" }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" style={{ gap: "14px 20px" }}>
         {steps.map(s => (
           <div key={s.n} style={{ display: "flex", alignItems: "center", gap: 11 }}>
             <span style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(107,181,149,.15)", color: "#4F9C7C", fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{s.n}</span>
