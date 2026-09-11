@@ -4,6 +4,9 @@ import { useProperties, useDestinations } from "../hooks/useProperties"
 import { whatsappLink } from "../lib/whatsapp"
 import { fmtPrice } from "../lib/format"
 import { usePageMeta } from "../hooks/usePageMeta"
+import comprarcasas from "../assets/images/dnvcasas-comprarcasas.jpg"
+import ventacasas from "../assets/images/hero_venta.webp"
+
 
 /**
  * Página del catálogo de COMPRAS (categoría "compras" = int 2 en el back).
@@ -214,44 +217,79 @@ export default function Compras() {
       <section style={{ position: "relative", padding: "150px 0 56px", overflow: "hidden", color: "#fff" }}>
         <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
           <img
-            src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1900&q=80"
+            src={ventacasas}
             alt=""
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
+          /> 
           <div style={{
             position: "absolute", inset: 0,
             background: "linear-gradient(180deg,rgba(34,40,49,.62),rgba(34,40,49,.86))",
           }} />
         </div>
-        <div className="mx-auto px-6" style={{ position: "relative", zIndex: 2, maxWidth: 680 }}>
-          <span style={{
-            fontSize: 13, fontWeight: 700, letterSpacing: ".12em",
-            textTransform: "uppercase", color: "#D8C078",
-          }}>En venta</span>
-          <h1 style={{
-            fontWeight: 200, fontSize: "clamp(38px,5.4vw,72px)",
-            letterSpacing: "-.03em", lineHeight: 1, margin: "16px 0 18px",
-          }}>
-            Comprá tu lugar en{" "}
-            <em style={{ fontStyle: "normal", color: "#D8C078" }}>el lugar que amás</em>
-          </h1>
-          <p style={{ fontSize: 18, color: "rgba(255,255,255,.88)", lineHeight: 1.6, maxWidth: 560, margin: 0 }}>
-            Casas, departamentos y lotes en todos nuestros destinos. Te acompañamos en toda la operación, de igual a igual y sin apuro. El primer paso es una charla por WhatsApp.
-          </p>
-          <div style={{ display: "flex", gap: 40, marginTop: 34, flexWrap: "wrap" }}>
-            {[
-              [loading ? "—" : properties.length, "propiedades en venta"],
-              // Sale de la API: estaba hardcodeado en "5" y hay 6 destinos.
-              [destinations.length || "—", "destinos"],
-              ["0%", "comisión oculta"],
-            ].map(([val, label]) => (
-              <div key={label}>
-                <b style={{ fontSize: 30, fontWeight: 300, display: "block", letterSpacing: "-.02em" }}>{val}</b>
-                <span style={{ fontSize: 13.5, color: "rgba(255,255,255,.7)" }}>{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+<div className="mx-auto px-6" style={{ position: "relative", zIndex: 2, maxWidth: 680 }}>
+  <span style={{
+    fontSize: 13, fontWeight: 700, letterSpacing: ".12em",
+    textTransform: "uppercase", color: "#D8C078",
+  }}>En venta</span>
+  <h1 style={{
+    fontWeight: 200, fontSize: "clamp(38px,5.4vw,72px)",
+    letterSpacing: "-.03em", lineHeight: 1, margin: "16px 0 18px",
+    color: "#ffffff"
+  }}>
+    Comprá tu lugar en{" "}
+    <em style={{ fontStyle: "normal", color: "#D8C078" }}>el lugar que amás</em>
+  </h1>
+  <p style={{ fontSize: 18, color: "rgba(255,255,255,.88)", lineHeight: 1.6, maxWidth: 560, margin: 0 }}>
+    Explorá nuestro catálogo de propiedades y encontrá la opción ideal para vos. Nosotros te acompañamos en cada etapa de la compra.
+  </p>
+
+  {/* Bloque agregado según la imagen */}
+  <div style={{ marginTop: 40 }}>
+    <h2 style={{ fontSize: 28, fontWeight: 300, color: "#ffffff", marginBottom: 12 }}>
+      ¿Querés vender tu propiedad?
+    </h2>
+    <p style={{ fontSize: 16, color: "rgba(255,255,255,.8)", lineHeight: 1.6, maxWidth: 520, marginBottom: 24 }}>
+      Sumate a nuestro catálogo. Escribinos y te explicamos nuestro proceso de venta.
+    </p>
+<a 
+  href={`https://wa.me/${import.meta.env.VITE_WHATSAPP}?text=Hola,%20quiero%20consultar%20sobre%20la%20venta%20de%20mi%20propiedad`} 
+  target="_blank" 
+  rel="noopener noreferrer"
+  style={{
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 10,
+    background: "#D8C078",
+    color: "#14171B",
+    fontWeight: 600,
+    fontSize: 15,
+    padding: "14px 28px",
+    borderRadius: "9999px",
+    textDecoration: "none",
+    boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+  }}
+>
+      <svg width={20} height={20} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+      </svg>
+      Consultar por WhatsApp
+    </a>
+  </div>
+
+  {/* <div style={{ display: "flex", gap: 40, marginTop: 34, flexWrap: "wrap" }}>
+    {[
+      [loading ? "—" : properties.length, "propiedades en venta"],
+      // Sale de la API: estaba hardcodeado en "5" y hay 6 destinos.
+      [destinations.length || "—", "destinos"],
+      ["0%", "comisión oculta"],
+    ].map(([val, label]) => (
+      <div key={label}>
+        <b style={{ fontSize: 30, fontWeight: 300, display: "block", letterSpacing: "-.02em" }}>{val}</b>
+        <span style={{ fontSize: 13.5, color: "rgba(255,255,255,.7)" }}>{label}</span>
+      </div>
+    ))}
+  </div> */}
+</div>
       </section>
 
       {/* ── Sticky filter chips ───────────────────────────── */}
@@ -387,7 +425,7 @@ export default function Compras() {
               boxShadow: "0 30px 80px rgba(42,51,64,.22)", aspectRatio: "4/3",
             }}>
               <img
-                src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80"
+                src={comprarcasas}
                 alt="Casa en venta"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />

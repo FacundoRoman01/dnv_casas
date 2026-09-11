@@ -47,7 +47,7 @@ export default function WaysSection() {
     <section className="bg-white py-20">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-14" style={{ maxWidth: "680px", margin: "0 auto 56px" }}>
-          <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: "#B5933F" }}>Tres maneras de viajar</p>
+          <p className="text-xs font-semibold tracking-widest uppercase mb-3" style={{ color: "#B5933F" }}>Tres maneras diferentes de vivirlo</p>
           <h2 className="text-gray-900 mb-3" style={{ fontSize: "clamp(30px,4vw,52px)", fontWeight: 300, letterSpacing: "-0.025em", lineHeight: 1.04, marginTop: "14px" }}>Elegí tu camino</h2>
           <p className="text-gray-500" style={{ fontSize: "clamp(17px,1.4vw,20px)", lineHeight: 1.6, marginTop: "14px" }}>
             Una misma red de casas y familias. Vos decidís cómo querés vivir tu próximo viaje.

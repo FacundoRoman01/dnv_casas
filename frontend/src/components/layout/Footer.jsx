@@ -1,8 +1,14 @@
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useDestinations } from "../../hooks/useProperties"
 import { whatsappLink } from "../../lib/whatsapp"
 
 const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM
+
+// Tope de destinos visibles antes de necesitar "Ver más". Si la lista crece
+// (nuevos destinos cargados desde el admin), la columna deja de estirarse sin
+// límite hacia abajo — se corta acá y el resto queda detrás del botón.
+const DESTINOS_VISIBLES = 7
 
 /**
  * Footer público del sitio, presente en todas las páginas. Cuatro columnas:
@@ -12,6 +18,13 @@ const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM
  */
 export default function Footer() {
   const { destinations } = useDestinations()
+  // Arranca colapsada (mostrando solo los primeros DESTINOS_VISIBLES). El
+  // click en "Ver más" la expande a la lista completa; no vuelve a colapsar
+  // sola (no hace falta "Ver menos": es una sola visita a la página).
+  const [expandido, setExpandido] = useState(false)
+
+  const hayMasDestinos = destinations.length > DESTINOS_VISIBLES
+  const destinosAMostrar = expandido ? destinations : destinations.slice(0, DESTINOS_VISIBLES)
 
   return (
     <footer style={{ background: "#2A3340" }} className="text-white py-16">
@@ -45,7 +58,7 @@ export default function Footer() {
           <div>
             <h4 className="text-white text-sm font-medium mb-4">Destinos</h4>
             <ul style={{ lineHeight: "2.1" }}>
-              {destinations.map(dest => (
+              {destinosAMostrar.map(dest => (
                 <li key={dest.id}>
                   <Link
                     to={`/alquileres?destinationId=${dest.id}`}
@@ -56,6 +69,19 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
+            {/* "Ver más" solo aparece si hay más destinos de los que se
+                muestran por defecto. Expande la lista en el lugar, sin
+                navegar a otra página. */}
+            {hayMasDestinos && !expandido && (
+              <button
+                type="button"
+                onClick={() => setExpandido(true)}
+                className="text-white/70 hover:text-white text-sm transition-colors mt-1"
+                style={{ background: "none", border: "none", padding: 0, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: "3px" }}
+              >
+                Ver más
+              </button>
+            )}
           </div>
 
           {/* col 3: caminos */}
@@ -87,12 +113,12 @@ export default function Footer() {
                   WhatsApp
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a href="mailto:hola@dondenosvamos.com"
                   className="text-white/70 hover:text-white text-sm transition-colors">
                   hola@dondenosvamos.com
                 </a>
-              </li>
+              </li> */}
               {/* Apuntaba a https://instagram.com — la home de Instagram, no una
                   cuenta. Ahora sale de VITE_INSTAGRAM y si no está, no se muestra:
                   mejor sin link que con uno que no lleva a ningún lado. */}
@@ -120,6 +146,13 @@ export default function Footer() {
           </p>
           <p className="text-white/50 text-sm">
             Reservas humanas, sin pago online.
+          </p>
+          {/* Crédito de desarrollo. */}
+          <p className="text-white/50 text-sm">
+            Desarrollado por{" "}
+            <a href="https://mfstudio.vercel.app/" target="_blank" rel="noreferrer" className="text-white/70 hover:text-white transition-colors">
+              MF Studio
+            </a>
           </p>
         </div>
       </div>

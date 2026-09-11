@@ -9,6 +9,7 @@ export default function Modal({ children, onClose }) {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      padding: "16px",
     }}>
       {/* Overlay */}
       <div
@@ -22,15 +23,29 @@ export default function Modal({ children, onClose }) {
       />
 
       {/* Contenido del Modal */}
-      <div style={{
-        position: "relative",
-        background: "#fff",
-        borderRadius: "24px",
-        padding: "32px",
-        width: "90%",
-        maxWidth: "600px",
-        boxShadow: "0 10px 40px rgba(0,0,0,.2)",
-      }}>
+      <div 
+        className="no-scrollbar"
+        style={{
+          position: "relative",
+          background: "#fff",
+          borderRadius: "24px",
+          padding: "24px 28px", // Reducimos un poco el padding general
+          width: "100%",
+          maxWidth: "580px",
+          maxHeight: "92vh",
+          overflowY: "auto",
+          boxShadow: "0 10px 40px rgba(0,0,0,.2)",
+          scrollbarWidth: "none", /* Oculta scroll en Firefox */
+          msOverflowStyle: "none", /* Oculta scroll en IE/Edge viejo */
+        }}
+      >
+        {/* Estilo incrustado para ocultar la barra de scroll en Chrome/Safari */}
+        <style>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+
         {/* Botón de cierre */}
         <button
           onClick={onClose}
@@ -46,6 +61,7 @@ export default function Modal({ children, onClose }) {
             display: "grid",
             placeItems: "center",
             cursor: "pointer",
+            zIndex: 10,
           }}
         >
           <svg width={16} height={16} fill="none" stroke="#67717F" strokeWidth={2.5} viewBox="0 0 24 24">

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"
+import herohome from "../../assets/images/hero_inicio.webp";
 
 /**
  * Las 3 tarjetas del hero salen de la API, no de una lista fija.
@@ -47,7 +48,7 @@ export default function HeroSection({ destinations = [], search, setSearch, onSe
       {/* bg */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <img
-          src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=2100&q=80"
+          src={herohome}
           alt="Patagonia"
           className="w-full h-full object-cover"
         />

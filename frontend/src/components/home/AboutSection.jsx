@@ -1,4 +1,5 @@
 import { whatsappLink } from "../../lib/whatsapp"
+import imgQuienesSomos from "../../assets/images/img-quienessomos-dnvcasas.jpg"
 
 /**
  * Sección "Quiénes somos" del home: contá la historia de la marca (columna de
@@ -13,7 +14,7 @@ export default function AboutSection() {
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
           <div className="relative aspect-[3/4] rounded-3xl overflow-hidden">
-            <img src="/quienes-somos.png" alt="Equipo" className="object-cover w-full h-full" />
+            <img src={imgQuienesSomos} alt="Equipo" className="object-cover w-full h-full" />
             <div className="absolute text-white" style={{ left: 20, right: 20, bottom: 20, padding: "18px 22px", display: "flex", alignItems: "center", gap: 14, background: "rgba(255,255,255,.12)", backdropFilter: "blur(14px)", border: "1px solid rgba(255,255,255,.25)", borderRadius: 28 }}>
               <span style={{ width: 46, height: 46, borderRadius: "50%", background: "#6BB595", display: "grid", placeItems: "center", flexShrink: 0 }}>
                 <svg width={22} height={22} fill="none" stroke="#0e3326" strokeWidth={2} viewBox="0 0 24 24">

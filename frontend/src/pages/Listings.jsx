@@ -151,19 +151,127 @@ function ComoFunciona() {
         El intercambio puede ser simultáneo o diferido
       </p>
 
-      {modalOpen && (
-        <Modal onClose={() => setModalOpen(false)}>
-          <h2 style={{ fontSize: 24, fontWeight: 600, color: "#14171B", marginBottom: 12 }}>
-            ¿Cómo funciona el intercambio de casas?
-          </h2>
-          <p style={{ color: "#67717F", lineHeight: 1.6, marginBottom: 24 }}>
-            El intercambio de casas te permite disfrutar de vacaciones en nuevos destinos sin costo de alojamiento. Simplemente ofrecés tu casa y elegís otra de la comunidad para tu estadía. Nosotros nos encargamos de conectar a las familias y facilitar el acuerdo para que la experiencia sea segura y transparente.
-          </p>
-          <Link to="/intercambios" className="inline-block text-white font-semibold rounded-full px-6 py-3" style={{ background: "#6BB595", textDecoration: "none" }}>
-            Ver más detalles y preguntas frecuentes
-          </Link>
-        </Modal>
-      )}
+ {modalOpen && (
+  <Modal onClose={() => setModalOpen(false)}>
+    <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "1px", color: "#6BB595", textTransform: "uppercase", display: "block", marginBottom: 8 }}>
+      Intercambio de casas
+    </span>
+    
+    <h2 style={{ fontSize: 24, fontWeight: 700, color: "#14171B", lineHeight: 1.2, marginBottom: 12 }}>
+      Tu casa puede abrirte la puerta a nuevos destinos
+    </h2>
+    
+    <p style={{ color: "#67717F", fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>
+      Publicá tu casa, encontrá otra que te interese y proponé un intercambio. Nosotros gestionamos la comunicación entre ambas partes y te acompañamos hasta concretar el acuerdo.
+    </p>
+
+    {/* Lista de los 4 pasos */}
+    <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 24 }}>
+      
+      {/* Paso 1 */}
+      <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+        <div style={{ background: "#E8F5EF", color: "#6BB595", width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
+          1
+        </div>
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 600, color: "#14171B", margin: "0 0 2px 0" }}>Explorá las casas disponibles</h4>
+          <p style={{ fontSize: 13, color: "#67717F", margin: 0, lineHeight: 1.4 }}>Recorré el catálogo de hogares disponibles y encontrá el destino que mejor se adapte a tu próximo viaje.</p>
+        </div>
+      </div>
+
+      {/* Paso 2 */}
+      <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+        <div style={{ background: "#E8F5EF", color: "#6BB595", width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
+          2
+        </div>
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 600, color: "#14171B", margin: "0 0 2px 0" }}>Proponé un intercambio</h4>
+          <p style={{ fontSize: 13, color: "#67717F", margin: 0, lineHeight: 1.4 }}>Cuando encuentres una casa que te interese, hacé clic en "Proponer intercambio" para gestionar la propuesta.</p>
+        </div>
+      </div>
+
+      {/* Paso 3 */}
+      <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+        <div style={{ background: "#E8F5EF", color: "#6BB595", width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
+          3
+        </div>
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 600, color: "#14171B", margin: "0 0 2px 0" }}>Nosotros gestionamos el acuerdo</h4>
+          <p style={{ fontSize: 13, color: "#67717F", margin: 0, lineHeight: 1.4 }}>Nos encargamos de hablar con la otra familia, resolver dudas y coordinar todo lo necesario.</p>
+        </div>
+      </div>
+
+      {/* Paso 4 */}
+      <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+        <div style={{ background: "#E8F5EF", color: "#6BB595", width: 26, height: 26, borderRadius: "50%", display: "grid", placeItems: "center", fontWeight: 700, fontSize: 12, flexShrink: 0 }}>
+          4
+        </div>
+        <div>
+          <h4 style={{ fontSize: 14, fontWeight: 600, color: "#14171B", margin: "0 0 2px 0" }}>Intercambian y viajan</h4>
+          <p style={{ fontSize: 13, color: "#67717F", margin: 0, lineHeight: 1.4 }}>Una vez aceptado el intercambio, solo queda coordinar las fechas y disfrutar de la experiencia.</p>
+        </div>
+      </div>
+
+    </div>
+
+    {/* Botón principal de intercambio */}
+    <a 
+      href={`https://wa.me/${import.meta.env.VITE_WHATSAPP}?text=Hola,%20quiero%20más%20información%20sobre%20el%20intercambio%20de%20casas`} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+        background: "#6BB595",
+        color: "#fff",
+        fontWeight: 600,
+        fontSize: 14,
+        padding: "12px 20px",
+        borderRadius: "9999px",
+        textDecoration: "none",
+        width: "100%",
+        marginBottom: 24,
+      }}
+    >
+      Quiero intercambiar mi casa
+    </a>
+
+    {/* Sección inferior: ¿Todavía no publicaste tu casa? */}
+    <div style={{ borderTop: "1px solid #E5E7EB", paddingTop: 20 }}>
+      <h3 style={{ fontSize: 16, fontWeight: 600, color: "#14171B", marginBottom: 6 }}>
+        ¿Todavía no publicaste tu casa?
+      </h3>
+      <p style={{ fontSize: 13, color: "#67717F", lineHeight: 1.4, marginBottom: 14 }}>
+        Escribinos por WhatsApp para sumar tu propiedad a la comunidad y recibir propuestas de intercambio.
+      </p>
+
+      <a 
+        href={`https://wa.me/${import.meta.env.VITE_WHATSAPP}?text=Hola,%20quiero%20publicar%20mi%20casa%20para%20intercambio`} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 10,
+          background: "#D8C078",
+          color: "#14171B",
+          fontWeight: 600,
+          fontSize: 14,
+          padding: "12px 20px",
+          borderRadius: "9999px",
+          textDecoration: "none",
+          width: "100%",
+        }}
+      >
+        Consultar por WhatsApp
+      </a>
+    </div>
+
+  </Modal>
+)}
     </div>
   )
 }

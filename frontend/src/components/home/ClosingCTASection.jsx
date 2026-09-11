@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { whatsappLink } from "../../lib/whatsapp"
+import imgfouter from "../../assets/images/imagen_fouter.webp";
 
 // Ícono de WhatsApp inline (SVG). Se repite en varios componentes porque no hay
 // un set de íconos compartido; className deja ajustar el tamaño desde afuera.
@@ -23,7 +24,7 @@ export default function ClosingCTASection() {
       <div className="max-w-7xl mx-auto px-4">
         <div style={{ position: "relative", overflow: "hidden", borderRadius: 36, textAlign: "center", padding: "clamp(48px,7vw,88px) clamp(24px,6vw,80px)", color: "#fff" }}>
           <div style={{ position: "absolute", inset: 0, zIndex: 0 }}>
-            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1800" alt="Lago y montañas" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <img src={imgfouter} alt="Lago y montañas" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg,rgba(34,40,49,.55),rgba(34,40,49,.78))" }} />
           </div>
           <div style={{ position: "relative", zIndex: 2 }}>
