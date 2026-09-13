@@ -164,23 +164,27 @@ function VCard({ property }) {
         </div>
 
         {/* CTAs */}
-        <div style={{ display: "flex", gap: 10, marginTop: "auto" }}>
+        <div style={{ display: "flex", gap: 10, marginTop: "auto", alignItems: "stretch" }}>
           <Link
             to={`/compras/${property.id}`}
             style={{
-              flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-              padding: "13px 18px", fontSize: 14.5, fontWeight: 600,
-              borderRadius: 999, background: "#C9AB55", color: "#1a1a2e", textDecoration: "none",
+              flex: 1.2, display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", gap: 2,
+              padding: "12px 16px", fontSize: 14, fontWeight: 600,
+              borderRadius: 20, background: "#C9AB55", color: "#1a1a2e", textDecoration: "none",
+              boxShadow: "0 4px 15px rgba(201,171,85,0.25)"
             }}
           >
-            Ver propiedad <ArrowR />
+            <span style={{ fontSize: 11.5, opacity: 0.85, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700 }}>Detalle</span>
+            <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", fontSize: 14.5, fontWeight: 700 }}>
+              Ver propiedad <ArrowR />
+            </span>
           </Link>
           <a
             href={waVisit} target="_blank" rel="noopener noreferrer"
             style={{
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-              padding: "13px 18px", fontSize: 14.5, fontWeight: 600,
-              borderRadius: 999, background: "transparent", color: "#14171B",
+              padding: "12px 14px", fontSize: 14, fontWeight: 600,
+              borderRadius: 20, background: "transparent", color: "#14171B",
               border: "1.5px solid #DCE2E9", textDecoration: "none",
             }}
           >

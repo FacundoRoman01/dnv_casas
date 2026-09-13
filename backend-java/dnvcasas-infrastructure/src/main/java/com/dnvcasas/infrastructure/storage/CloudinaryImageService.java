@@ -81,7 +81,13 @@ public class CloudinaryImageService implements ImageService {
             throw new IllegalStateException("No se pudo subir el archivo a Cloudinary", e);
         }
 
-        PropertyImage image = PropertyImage.uploaded(propertyId, url);
+        // BUGFIX: se pasa 'actuales' (ya calculado arriba para el límite) como el
+        // displayOrder de la nueva imagen, en vez de que uploaded() hardcodee 999
+        // para todas. Así la 1ª foto entra en 0, la 2ª en 1, etc. — sin empates
+        // que antes hacían que la portada mostrada fuera inconsistente (a veces
+        // la última subida en vez de la primera). Ver el comentario completo en
+        // PropertyImage.uploaded().
+        PropertyImage image = PropertyImage.uploaded(propertyId, url, actuales);
 
         try {
             PropertyImage saved = repo.add(image);

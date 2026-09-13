@@ -143,7 +143,13 @@ public class LocalImageService implements ImageService {
             throw new IllegalStateException("No se pudo guardar el archivo", e);
         }
 
-        PropertyImage image = PropertyImage.uploaded(propertyId, uploadsUrl + "/" + fileName);
+        // BUGFIX: se pasa 'actuales' (ya calculado arriba para el límite) como el
+        // displayOrder de la nueva imagen, en vez de que uploaded() hardcodee 999
+        // para todas. Así la 1ª foto entra en 0, la 2ª en 1, etc. — sin empates
+        // que antes hacían que la portada mostrada fuera inconsistente (a veces
+        // la última subida en vez de la primera). Ver el comentario completo en
+        // PropertyImage.uploaded().
+        PropertyImage image = PropertyImage.uploaded(propertyId, uploadsUrl + "/" + fileName, actuales);
 
         try {
             PropertyImage saved = repo.add(image);

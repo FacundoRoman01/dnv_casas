@@ -1,158 +1,784 @@
 import { useNavigate } from "react-router-dom"
-import herohome from "../../assets/images/hero_inicio.webp";
+import herohome from "../../assets/images/hero_inicio.webp"
 
 /**
  * Las 3 tarjetas del hero salen de la API, no de una lista fija.
- *
- * Estaban hardcodeadas en Bariloche / Punta del Este / Miami — y los dos últimos
- * no tienen ni una propiedad, así que el hero promocionaba como centro visual
- * justo lo que no existe. Se priorizan los destinos CON inventario; si no
- * alcanzan, se completa con el resto antes que mostrar huecos.
  */
 function miniCards(destinations) {
   const conStock = destinations.filter(d => (d.propertyCount ?? 0) > 0)
   const resto = destinations.filter(d => (d.propertyCount ?? 0) === 0)
+
   return [...conStock, ...resto].slice(0, 3)
 }
 
-/** El badge también era literal y nombraba los destinos vacíos. */
+/**
+ * Badge dinámico según los destinos disponibles.
+ */
 function badge(destinations) {
   const nombres = miniCards(destinations).map(d => d.name)
+
   if (!nombres.length) return "Casas elegidas a mano"
+
   return destinations.length > nombres.length
     ? `${nombres.join(" · ")} y más...`
     : nombres.join(" · ")
 }
 
-function LocationIcon() {
-  return (
-    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-    </svg>
-  )
-}
-
-/**
- * Sección hero del home (pantalla completa arriba de todo): imagen de fondo,
- * titular, barra de búsqueda en desktop y CTAs en mobile, más las mini-cards
- * de destinos abajo.
- * Props: `destinations` (de la API, alimenta el select y las mini-cards),
- * `search`/`setSearch` (estado controlado del formulario, vive en el padre) y
- * `onSearch` (handler del submit). Un click en una mini-card navega al catálogo
- * filtrado por ese destino.
- */
-export default function HeroSection({ destinations = [], search, setSearch, onSearch }) {
+export default function HeroSection({
+  destinations = [],
+  search,
+  setSearch,
+  onSearch,
+}) {
   const navigate = useNavigate()
+
   return (
-    <section className="relative min-h-screen flex flex-col" style={{ color: "#fff" }}>
-      {/* bg */}
+    <section className="relative flex min-h-[100svh] w-full flex-col overflow-hidden text-white">
+
+      {/* =====================================================
+          BACKGROUND
+      ===================================================== */}
       <div className="absolute inset-0 z-0 overflow-hidden">
+
         <img
           src={herohome}
           alt="Patagonia"
-          className="w-full h-full object-cover"
+          className="
+            h-full
+            w-full
+            scale-[1.015]
+            object-cover
+            object-center
+          "
         />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(120% 80% at 50% 0%, rgba(20,23,27,.50), transparent 55%), linear-gradient(180deg, rgba(20,23,27,.34) 0%, rgba(20,23,27,.05) 26%, rgba(34,40,49,.30) 62%, rgba(34,40,49,.72) 100%)" }} />
+
+        {/* Overlay general */}
+        <div
+          className="
+            absolute
+            inset-0
+            bg-[linear-gradient(180deg,rgba(15,20,24,0.62)_0%,rgba(15,20,24,0.28)_25%,rgba(20,25,30,0.12)_48%,rgba(18,23,29,0.52)_78%,rgba(18,23,29,0.86)_100%)]
+          "
+        />
+
+        {/* Luz central */}
+        <div
+          className="
+            absolute
+            inset-0
+            bg-[radial-gradient(circle_at_50%_32%,rgba(216,192,120,0.16),transparent_42%)]
+          "
+        />
+
+        {/* Viñeta lateral */}
+        <div
+          className="
+            absolute
+            inset-0
+            bg-[linear-gradient(90deg,rgba(10,15,20,0.35),transparent_30%,transparent_70%,rgba(10,15,20,0.28))]
+          "
+        />
       </div>
 
-      <div className="relative z-10 flex-1 flex flex-col w-full">
-        {/* headline + search */}
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-6" style={{ padding: "clamp(70px,10vh,130px) 24px 8px" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "7px 16px", borderRadius: 999, fontSize: 13.5, fontWeight: 500, background: "rgba(255,255,255,.12)", backdropFilter: "blur(14px)", border: "1px solid rgba(255,255,255,.25)", color: "rgba(255,255,255,.92)" }}>
-            {badge(destinations)}
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
+      <div className="relative z-10 flex min-h-[100svh] w-full flex-1 flex-col">
+
+        {/* ===================================================
+            MAIN HERO
+        ==================================================== */}
+        <div
+          className="
+            flex
+            flex-1
+            flex-col
+            items-center
+            justify-center
+            px-5
+            pt-28
+            pb-20
+            text-center
+
+            sm:px-6
+            sm:pt-32
+            sm:pb-24
+
+            lg:px-8
+            lg:pt-36
+            lg:pb-24
+          "
+        >
+
+          {/* =================================================
+              BADGE
+          ================================================== */}
+          <span
+            className="
+              mb-5
+              inline-flex
+              max-w-[90vw]
+              items-center
+              justify-center
+              truncate
+              rounded-full
+              border
+              border-white/20
+              bg-white/10
+              px-4
+              py-2
+              text-[12px]
+              font-medium
+              tracking-wide
+              text-white/90
+              shadow-lg
+              backdrop-blur-xl
+
+              sm:mb-6
+              sm:px-5
+              sm:text-[13px]
+            "
+          >
+            <span className="truncate">
+              {badge(destinations)}
+            </span>
           </span>
 
-          <h1 style={{ letterSpacing: "-0.03em", textShadow: "0 2px 40px rgba(20,23,27,.35)", lineHeight: 0.96, fontWeight: 200, fontSize: "clamp(44px,7.2vw,116px)", margin: 0 }}>
-            <span style={{ color: "#D8C078", fontWeight: 300 }}>¿Dónde</span>
-            <span className="text-white"> nos vamos</span>
-            <span style={{ color: "#D8C078", fontWeight: 300 }}>?</span>
+          {/* =================================================
+              TITLE
+          ================================================== */}
+          <h1
+            className="
+              m-0
+              w-full
+              max-w-[1180px]
+              text-center
+              text-[42px]
+              font-extralight
+              leading-[0.94]
+              tracking-[-0.045em]
+              drop-shadow-[0_3px_35px_rgba(0,0,0,0.30)]
+
+              sm:text-[54px]
+
+              md:text-[64px]
+
+              lg:text-[clamp(64px,5.4vw,82px)]
+          "
+          >
+            <span className="font-light text-[#D8C078]">
+              ¿Dónde
+            </span>
+
+            <span className="text-white">
+              {" "}nos vamos
+            </span>
+
+            <span className="font-light text-[#D8C078]">
+              ?
+            </span>
+
             <br />
-            <span className="text-white" style={{ fontWeight: 300 }}>Tu próxima casa lejos de casa.</span>
+
+            <span className="mt-2 inline-block font-light text-white sm:mt-3">
+              Tu próxima casa
+              <br className="sm:hidden" />
+              {" "}lejos de casa.
+            </span>
           </h1>
 
-          <p style={{ color: "rgba(255,255,255,.9)", fontSize: "clamp(16px,1.5vw,20px)", lineHeight: 1.55, maxWidth: 600, textAlign: "center", margin: 0, fontWeight: 400 }}>
-            Alquilá, intercambiá o comprá casas en los lugares que querés volver a ver. Sin pagos online: cerramos todo, de igual a igual, por WhatsApp.
+          {/* =================================================
+              DESCRIPTION
+          ================================================== */}
+          <p
+            className="
+              mt-6
+              mb-0
+              max-w-[650px]
+              px-2
+              text-center
+              text-[15px]
+              font-normal
+              leading-relaxed
+              text-white/85
+              drop-shadow-[0_2px_18px_rgba(0,0,0,0.25)]
+
+              sm:mt-7
+              sm:text-[17px]
+
+              lg:text-[19px]
+            "
+          >
+            Alquilá, intercambiá o comprá casas en los lugares
+            que querés volver a ver.
+
+            <br className="hidden sm:block" />
+
+            Sin pagos online: cerramos todo, de igual a igual,
+            por WhatsApp.
           </p>
 
-          {/* search bar desktop */}
-          <form onSubmit={onSearch} className="hidden lg:grid w-full max-w-[1100px]" style={{ gridTemplateColumns: "1.5fr 1fr 1fr 1fr auto", alignItems: "stretch", padding: "10px", borderRadius: "26px", gap: "4px", background: "rgba(255,255,255,0.12)", backdropFilter: "blur(20px)", border: "1px solid rgba(255,255,255,0.25)" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "12px 20px", borderRadius: "18px", position: "relative" }}>
-              <label style={{ fontSize: "11px", fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(255,255,255,.72)" }}>Destino</label>
-              <select style={{ background: "transparent", border: "none", color: "#fff", fontSize: "16px", fontWeight: 500, outline: "none", width: "100%" }} value={search.destination} onChange={e => setSearch({ ...search, destination: e.target.value })}>
-                <option value="" style={{ color: "#14171B" }}>¿A dónde vamos?</option>
+          {/* =================================================
+              SEARCH DESKTOP
+          ================================================== */}
+          <form
+            onSubmit={onSearch}
+            className="
+              mt-10
+              hidden
+              w-full
+              max-w-[1120px]
+              grid-cols-[1.45fr_1fr_1fr_1fr_auto]
+              items-stretch
+              gap-[3px]
+              rounded-[24px]
+              border
+              border-white/20
+              bg-white/10
+              p-2
+              shadow-[0_20px_60px_rgba(0,0,0,0.18)]
+              backdrop-blur-2xl
+
+              lg:grid
+            "
+          >
+
+            {/* DESTINO */}
+            <div
+              className="
+                relative
+                flex
+                min-w-0
+                flex-col
+                justify-center
+                gap-1
+                rounded-[17px]
+                px-5
+                py-3
+              "
+            >
+              <label
+                className="
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[0.13em]
+                  text-white/60
+                "
+              >
+                Destino
+              </label>
+
+              <select
+                className="
+                  w-full
+                  cursor-pointer
+                  appearance-none
+                  border-none
+                  bg-transparent
+                  text-[15px]
+                  font-medium
+                  text-white
+                  outline-none
+                "
+                value={search.destination}
+                onChange={e =>
+                  setSearch({
+                    ...search,
+                    destination: e.target.value,
+                  })
+                }
+              >
+                <option
+                  value=""
+                  className="text-[#14171B]"
+                >
+                  ¿A dónde vamos?
+                </option>
+
                 {destinations.map(d => (
-                  <option key={d.id} value={d.id} style={{ color: "#14171B" }}>{d.name}</option>
+                  <option
+                    key={d.id}
+                    value={d.id}
+                    className="text-[#14171B]"
+                  >
+                    {d.name}
+                  </option>
                 ))}
               </select>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "12px 20px", borderRadius: "18px", borderLeft: "1px solid rgba(255,255,255,.18)" }}>
-              <label style={{ fontSize: "11px", fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(255,255,255,.72)" }}>Check-in</label>
-              <input type="date" style={{ background: "transparent", border: "none", color: "#fff", fontSize: "16px", fontWeight: 500, outline: "none", width: "100%", colorScheme: "dark" }} value={search.dateFrom} onChange={e => setSearch({ ...search, dateFrom: e.target.value })} />
+
+            {/* CHECK-IN */}
+            <div
+              className="
+                flex
+                min-w-0
+                flex-col
+                justify-center
+                gap-1
+                rounded-[17px]
+                border-l
+                border-white/10
+                px-5
+                py-3
+              "
+            >
+              <label
+                className="
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[0.13em]
+                  text-white/60
+                "
+              >
+                Check-in
+              </label>
+
+              <input
+                type="date"
+                className="
+                  w-full
+                  cursor-pointer
+                  border-none
+                  bg-transparent
+                  text-[15px]
+                  font-medium
+                  text-white
+                  outline-none
+                  [color-scheme:dark]
+                "
+                value={search.dateFrom}
+                onChange={e =>
+                  setSearch({
+                    ...search,
+                    dateFrom: e.target.value,
+                  })
+                }
+              />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "12px 20px", borderRadius: "18px", borderLeft: "1px solid rgba(255,255,255,.18)" }}>
-              <label style={{ fontSize: "11px", fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(255,255,255,.72)" }}>Check-out</label>
-              <input type="date" style={{ background: "transparent", border: "none", color: "#fff", fontSize: "16px", fontWeight: 500, outline: "none", width: "100%", colorScheme: "dark" }} value={search.dateTo} onChange={e => setSearch({ ...search, dateTo: e.target.value })} />
+
+            {/* CHECK-OUT */}
+            <div
+              className="
+                flex
+                min-w-0
+                flex-col
+                justify-center
+                gap-1
+                rounded-[17px]
+                border-l
+                border-white/10
+                px-5
+                py-3
+              "
+            >
+              <label
+                className="
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[0.13em]
+                  text-white/60
+                "
+              >
+                Check-out
+              </label>
+
+              <input
+                type="date"
+                className="
+                  w-full
+                  cursor-pointer
+                  border-none
+                  bg-transparent
+                  text-[15px]
+                  font-medium
+                  text-white
+                  outline-none
+                  [color-scheme:dark]
+                "
+                value={search.dateTo}
+                onChange={e =>
+                  setSearch({
+                    ...search,
+                    dateTo: e.target.value,
+                  })
+                }
+              />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "3px", padding: "12px 20px", borderRadius: "18px", borderLeft: "1px solid rgba(255,255,255,.18)" }}>
-              <label style={{ fontSize: "11px", fontWeight: 600, letterSpacing: ".12em", textTransform: "uppercase", color: "rgba(255,255,255,.72)" }}>Huéspedes</label>
-              <select style={{ background: "transparent", border: "none", color: "#fff", fontSize: "16px", fontWeight: 500, outline: "none", width: "100%" }} value={search.guests} onChange={e => setSearch({ ...search, guests: e.target.value })}>
-                <option value="" style={{ color: "#14171B" }}>2 huéspedes</option>
+
+            {/* HUESPEDES */}
+            <div
+              className="
+                flex
+                min-w-0
+                flex-col
+                justify-center
+                gap-1
+                rounded-[17px]
+                border-l
+                border-white/10
+                px-5
+                py-3
+              "
+            >
+              <label
+                className="
+                  text-[10px]
+                  font-bold
+                  uppercase
+                  tracking-[0.13em]
+                  text-white/60
+                "
+              >
+                Huéspedes
+              </label>
+
+              <select
+                className="
+                  w-full
+                  cursor-pointer
+                  appearance-none
+                  border-none
+                  bg-transparent
+                  text-[15px]
+                  font-medium
+                  text-white
+                  outline-none
+                "
+                value={search.guests}
+                onChange={e =>
+                  setSearch({
+                    ...search,
+                    guests: e.target.value,
+                  })
+                }
+              >
+                <option
+                  value=""
+                  className="text-[#14171B]"
+                >
+                  2 huéspedes
+                </option>
+
                 {[1, 2, 4, 6, 8].map(n => (
-                  <option key={n} value={n} style={{ color: "#14171B" }}>{n} {n === 1 ? "huésped" : "huéspedes"}</option>
+                  <option
+                    key={n}
+                    value={n}
+                    className="text-[#14171B]"
+                  >
+                    {n} {n === 1 ? "huésped" : "huéspedes"}
+                  </option>
                 ))}
               </select>
             </div>
-            <div style={{ alignSelf: "stretch", display: "grid", placeItems: "center", padding: "0 14px" }}>
-              <button type="submit" style={{ width: "100%", height: "100%", minWidth: "130px", borderRadius: "18px", background: "#C9AB55", color: "#2A3340", fontWeight: 600, fontSize: "16px", display: "flex", alignItems: "center", justifyContent: "center", gap: "9px", boxShadow: "0 10px 30px rgba(201,171,85,.45)", border: "none", cursor: "pointer" }}>
-                <svg style={{ width: 19, height: 19, stroke: "#1a1a2e", fill: "none" }} viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+
+            {/* BOTÓN BUSCAR */}
+            <div className="grid place-items-center px-1">
+              <button
+                type="submit"
+                className="
+                  flex
+                  h-full
+                  min-h-[60px]
+                  w-full
+                  min-w-[128px]
+                  items-center
+                  justify-center
+                  gap-2
+                  rounded-[17px]
+                  border-none
+                  bg-[#C9AB55]
+                  px-5
+                  text-[15px]
+                  font-semibold
+                  text-[#252D37]
+                  shadow-[0_8px_25px_rgba(201,171,85,0.28)]
+                  transition-all
+                  duration-200
+                  hover:-translate-y-0.5
+                  hover:shadow-[0_12px_30px_rgba(201,171,85,0.38)]
+                  active:translate-y-0
+                  cursor-pointer
+                "
+              >
+                <svg
+                  className="h-[18px] w-[18px] stroke-[#252D37]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    cx="11"
+                    cy="11"
+                    r="7"
+                  />
+
+                  <path d="m20 20-3.5-3.5" />
+                </svg>
+
                 Buscar
               </button>
             </div>
           </form>
 
-          {/* mobile CTAs */}
-          <div className="lg:hidden flex gap-3 mt-2">
-            <a href="/alquileres" className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm" style={{ background: "#C9AB55", color: "#2A3340" }}>
-              <svg width={16} height={16} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          {/* =================================================
+              MOBILE CTA
+          ================================================== */}
+          <div
+            className="
+              mt-8
+              flex
+              w-full
+              max-w-[360px]
+              flex-col
+              gap-3
+
+              sm:flex-row
+            "
+          >
+
+            {/* EXPLORAR */}
+            <a
+              href="/alquileres"
+              className="
+                flex
+                w-full
+                items-center
+                justify-center
+                gap-2
+                rounded-full
+                bg-[#C9AB55]
+                px-6
+                py-3.5
+                text-sm
+                font-semibold
+                text-[#252D37]
+                shadow-[0_10px_28px_rgba(0,0,0,0.16)]
+                transition-all
+                duration-200
+                hover:-translate-y-0.5
+              "
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
+                />
+
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+
               Explorar casas
             </a>
-            <a href="/intercambios" className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-sm" style={{ background: "rgba(255,255,255,.15)", color: "#fff", border: "1px solid rgba(255,255,255,.25)" }}>
+
+            {/* INTERCAMBIAR */}
+            <a
+              href="/intercambios"
+              className="
+                flex
+                w-full
+                items-center
+                justify-center
+                gap-2
+                rounded-full
+                border
+                border-white/25
+                bg-white/10
+                px-6
+                py-3.5
+                text-sm
+                font-semibold
+                text-white
+                backdrop-blur-xl
+                transition-all
+                duration-200
+                hover:bg-white/15
+              "
+            >
               Intercambiar
             </a>
           </div>
         </div>
 
-        {/* bottom band */}
-        <div className="hidden lg:flex items-end justify-between" style={{ gap: 24, padding: "0 max(24px,4vw) 46px", marginTop: 46 }}>
-          <div style={{ background: "rgba(255,255,255,.12)", backdropFilter: "blur(14px)", border: "1px solid rgba(255,255,255,.25)", borderRadius: 28, padding: "24px 26px", maxWidth: 360 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 14 }}>
-              <div style={{ display: "flex" }}>
-                {[{ bg: "#C9AB55", color: "#1a1a2e", text: "M" }, { bg: "#6BB595", color: "#0e3326", text: "L" }, { bg: "#44536A", color: "#fff", text: "F" }, { bg: "#B5933F", color: "#fff", text: "R" }].map((a, i) => (
-                  <div key={i} style={{ width: 40, height: 40, borderRadius: "50%", fontSize: 14, fontWeight: 600, display: "grid", placeItems: "center", background: a.bg, color: a.color, border: "2px solid rgba(255,255,255,.55)", marginLeft: i !== 0 ? -12 : 0 }}>{a.text}</div>
+        {/* =====================================================
+            DESKTOP BOTTOM
+        ====================================================== */}
+        <div
+          className="
+            hidden
+            w-full
+            items-end
+            justify-between
+            gap-8
+            px-[max(28px,4vw)]
+            pb-10
+
+            lg:flex
+          "
+        >
+
+          {/* =================================================
+              TRUST CARD
+          ================================================== */}
+          <div
+            className="
+              w-full
+              max-w-[350px]
+              rounded-[24px]
+              border
+              border-white/20
+              bg-white/10
+              p-5
+              shadow-[0_18px_45px_rgba(0,0,0,0.16)]
+              backdrop-blur-xl
+            "
+          >
+            <div className="mb-3 flex items-center gap-3">
+
+              {/* AVATARS */}
+              <div className="flex">
+                {[
+                  {
+                    bg: "bg-[#C9AB55]",
+                    color: "text-[#1a1a2e]",
+                    text: "M",
+                  },
+                  {
+                    bg: "bg-[#6BB595]",
+                    color: "text-[#0e3326]",
+                    text: "L",
+                  },
+                  {
+                    bg: "bg-[#44536A]",
+                    color: "text-white",
+                    text: "F",
+                  },
+                  {
+                    bg: "bg-[#B5933F]",
+                    color: "text-white",
+                    text: "R",
+                  },
+                ].map((a, i) => (
+                  <div
+                    key={i}
+                    className={`
+                      grid
+                      h-[38px]
+                      w-[38px]
+                      place-items-center
+                      rounded-full
+                      border-2
+                      border-white/50
+                      text-[13px]
+                      font-semibold
+                      ${a.bg}
+                      ${a.color}
+                      ${i !== 0 ? "-ml-[11px]" : ""}
+                    `}
+                  >
+                    {a.text}
+                  </div>
                 ))}
               </div>
+
               <div>
-                <b style={{ fontSize: 20, fontWeight: 600, color: "#fff", display: "block", lineHeight: 1.1 }}>+1.200 familias</b>
-                <small style={{ fontSize: 13, color: "rgba(255,255,255,.8)" }}>ya viajaron con nosotros</small>
+                <b className="block text-[18px] font-semibold leading-tight text-white">
+                  +1.200 familias
+                </b>
+
+                <small className="text-[12.5px] text-white/70">
+                  ya viajaron con nosotros
+                </small>
               </div>
             </div>
-            <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.55, color: "rgba(255,255,255,.86)" }}>
-              Te acompañamos por WhatsApp de principio a fin: una persona real, no un formulario.
+
+            <p className="m-0 text-[13.5px] leading-relaxed text-white/80">
+              Te acompañamos por WhatsApp de principio a fin:
+              una persona real, no un formulario.
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "flex-end", gap: 14 }}>
+          {/* =================================================
+              DESTINATION CARDS
+          ================================================== */}
+          <div className="flex items-end gap-3">
+
             {miniCards(destinations).map((dest, i) => (
               <div
                 key={dest.id}
-                onClick={() => navigate(`/alquileres?destinationId=${dest.id}`)}
-                className="overflow-hidden relative flex-shrink-0 transition-transform duration-500 hover:-translate-y-2 cursor-pointer"
-                style={{ width: 128, height: i === 0 || i === 2 ? 200 : 172, borderRadius: 22, border: "1px solid rgba(255,255,255,.4)", boxShadow: "0 18px 40px rgba(20,23,27,.4)" }}
+                onClick={() =>
+                  navigate(
+                    `/alquileres?destinationId=${dest.id}`
+                  )
+                }
+                className={`
+                  group
+                  relative
+                  flex-shrink-0
+                  cursor-pointer
+                  overflow-hidden
+                  rounded-[20px]
+                  border
+                  border-white/35
+                  shadow-[0_18px_42px_rgba(10,15,20,0.35)]
+                  transition-all
+                  duration-500
+                  hover:-translate-y-2
+
+                  ${i === 1 ? "h-[165px] w-[122px]" : "h-[190px] w-[130px]"}
+                `}
               >
-                <img src={dest.imageUrl} alt={dest.name} className="w-full h-full object-cover" />
-                <span className="absolute text-white font-semibold" style={{ left: 10, bottom: 10, right: 10, fontSize: 12, textShadow: "0 1px 8px rgba(0,0,0,.6)" }}>{dest.name}</span>
+                <img
+                  src={dest.imageUrl}
+                  alt={dest.name}
+                  className="
+                    h-full
+                    w-full
+                    object-cover
+                    transition-transform
+                    duration-700
+                    group-hover:scale-105
+                  "
+                />
+
+                {/* Card overlay */}
+                <div
+                  className="
+                    absolute
+                    inset-0
+                    bg-gradient-to-b
+                    from-transparent
+                    via-transparent
+                    to-black/70
+                  "
+                />
+
+                {/* Destination name */}
+                <span
+                  className="
+                    absolute
+                    bottom-2.5
+                    left-2.5
+                    right-2.5
+                    text-[12px]
+                    font-semibold
+                    text-white
+                    drop-shadow-[0_1px_8px_rgba(0,0,0,0.65)]
+                  "
+                >
+                  {dest.name}
+                </span>
               </div>
             ))}
+
           </div>
         </div>
       </div>
