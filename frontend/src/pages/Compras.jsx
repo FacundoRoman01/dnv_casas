@@ -80,33 +80,35 @@ function VCard({ property }) {
         e.currentTarget.style.boxShadow = "0 4px 14px rgba(20,23,27,.08)"
       }}
     >
-      {/* Media */}
-      <div style={{ position: "relative", aspectRatio: "16/11", overflow: "hidden" }}>
-        <img src={cover} alt={property.title}
-          style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .9s ease" }}
-        />
-        {/* Glass tag */}
-        <div style={{ position: "absolute", top: 14, left: 14 }}>
-          <span style={{
-            background: "rgba(255,255,255,0.18)", backdropFilter: "blur(10px)",
-            border: "1px solid rgba(255,255,255,0.25)", color: "#fff",
-            padding: "5px 13px", borderRadius: 999, fontSize: 13, fontWeight: 600,
-          }}>En venta</span>
-        </div>
-        {/* Price badge */}
-        {property.price > 0 && (
-          <div style={{
-            position: "absolute", left: 14, bottom: 14,
-            background: "#2A3340", color: "#fff",
-            padding: "9px 16px", borderRadius: 999,
-            fontWeight: 600, fontSize: 18,
-            boxShadow: "0 14px 40px rgba(42,51,64,.14)",
-          }}>
-            <span style={{ color: "#D8C078", fontWeight: 500, fontSize: ".72em", marginRight: ".15em" }}>{f.cur}</span>
-            {f.num}
+{/* Media con Link para que también sea clickeable */}
+      <Link to={`/compras/${property.id}`} style={{ display: "block", textDecoration: "none" }}>
+        <div style={{ position: "relative", aspectRatio: "16/11", overflow: "hidden", cursor: "pointer" }}>
+          <img src={cover} alt={property.title}
+            style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform .9s ease" }}
+          />
+          {/* Glass tag */}
+          <div style={{ position: "absolute", top: 14, left: 14 }}>
+            <span style={{
+              background: "rgba(255,255,255,0.18)", backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.25)", color: "#fff",
+              padding: "5px 13px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+            }}>En venta</span>
           </div>
-        )}
-      </div>
+          {/* Price badge */}
+          {property.price > 0 && (
+            <div style={{
+              position: "absolute", left: 14, bottom: 14,
+              background: "#2A3340", color: "#fff",
+              padding: "9px 16px", borderRadius: 999,
+              fontWeight: 600, fontSize: 18,
+              boxShadow: "0 14px 40px rgba(42,51,64,.14)",
+            }}>
+              <span style={{ color: "#D8C078", fontWeight: 500, fontSize: ".72em", marginRight: ".15em" }}>{f.cur}</span>
+              {f.num}
+            </div>
+          )}
+        </div>
+      </Link>
 
       {/* Body */}
       <div style={{ padding: "22px 24px 24px", display: "flex", flexDirection: "column", flex: 1 }}>
@@ -305,7 +307,8 @@ export default function Compras() {
       <div className="max-w-7xl mx-auto px-6" style={{ padding: "14px 0" }}>
   {/* Línea 1: label + contador, siempre en una fila (texto corto, no se
       desborda en ningún ancho). */}
-  <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
+{/* Línea 1: label + contador con un pequeño respiro lateral */}
+  <div className="flex items-center justify-between px-2" style={{ marginBottom: 10 }}>
     <span style={{ fontSize: 13.5, fontWeight: 600, color: "#67717F" }}>Destino</span>
     <span style={{ fontSize: 14.5, color: "#67717F" }}>
       <b style={{ color: "#14171B", fontWeight: 600 }}>{filtered.length}</b> resultados
@@ -360,13 +363,13 @@ export default function Compras() {
           ) : filtered.length === 0 ? (
             <p style={{ color: "#67717F", fontSize: 16 }}>No hay propiedades en venta en este destino por el momento.</p>
           ) : (
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill,minmax(360px,1fr))",
-              gap: 30,
-            }}>
-              {filtered.map(p => <VCard key={p.id} property={p} />)}
-            </div>
+<div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 340px), 1fr))",
+            gap: 30,
+          }}>
+            {filtered.map(p => <VCard key={p.id} property={p} />)}
+          </div>
           )}
         </div>
       </div>

@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
   # Sin esto, docker compose down / un deploy corta los requests en vuelo de
   # golpe: un POST a mitad de camino queda sin respuesta y el cliente ve un
   # error de red.

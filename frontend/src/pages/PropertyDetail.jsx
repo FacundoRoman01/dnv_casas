@@ -501,7 +501,7 @@ const canGoBack = monthOffset > 0
     {Icons.arrowL}
   </button>
 
-  <div style={{ display: "flex", gap: "36px", flex: 1 }}>
+<div className="flex flex-col md:flex-row items-center justify-center gap-8" style={{ flex: 1 }}>
     {months.map(m => (
       <CalendarMonth
         key={`${m.year}-${m.month}`}
