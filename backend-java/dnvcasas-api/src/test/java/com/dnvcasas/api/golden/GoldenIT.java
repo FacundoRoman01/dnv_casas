@@ -163,9 +163,18 @@ class GoldenIT {
             return;
         }
 
-        assertThat(normalizar(mapper.readTree(actual)))
+        JsonNode esperado = normalizar(mapper.readTree(e.cuerpoEsperado()));
+        JsonNode obtenido = normalizar(mapper.readTree(actual));
+        // Los golden son anteriores a V3. Sólo en el detalle de una propiedad
+        // sin video se admite el nuevo campo opcional con valor null.
+        if (esperado.isObject() && esperado.has("images") && esperado.has("isFeatured")
+                && !esperado.has("youtubeUrl") && obtenido.isObject()
+                && obtenido.has("youtubeUrl") && obtenido.get("youtubeUrl").isNull()) {
+            ((ObjectNode) obtenido).remove("youtubeUrl");
+        }
+        assertThat(obtenido)
                 .as("body de %s", e.nombre())
-                .isEqualTo(normalizar(mapper.readTree(e.cuerpoEsperado())));
+                .isEqualTo(esperado);
     }
 
     private static String normalizarContentType(MediaType ct) {
