@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = "spring.profiles.active=test")
-@Sql(scripts = "/db/02-seed.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+@Sql(scripts = "/db/contract-extra-image.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 class GoldenIT {
 
     // Carpeta con los .txt del contrato grabado del .NET (relativa al módulo).
