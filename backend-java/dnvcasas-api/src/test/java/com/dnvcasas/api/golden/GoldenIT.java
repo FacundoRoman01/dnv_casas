@@ -44,7 +44,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * cubre WriteFlowIT.
  */
 @Testcontainers
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = "spring.profiles.active=test")
 @Sql(scripts = "/db/02-seed.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 class GoldenIT {
 
