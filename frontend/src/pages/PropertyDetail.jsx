@@ -7,6 +7,8 @@ import Lightbox from "../components/ui/Lightbox"
 import HorizontalCarousel from "../components/ui/HorizontalCarousel"
 import { whatsappLink, propertyMessage } from "../lib/whatsapp"
 import { CATEGORY_LABEL, CATEGORY_ROUTE } from "../lib/constants"
+import { fmtPrice } from "../lib/format"
+import { formatSeasonDate } from "../lib/seasonDates"
 
 /**
  * Detalle de una propiedad de ALQUILER o INTERCAMBIO (categorías 0 y 1). Se
@@ -239,6 +241,7 @@ const [lbOpen, setLbOpen]   = useState(false)
 
   // season prices
   const rates = property.seasonPrices || []
+  const basePrice = fmtPrice(property.price, property.currency)
   const VISIBLE = 3
   const visibleRates = ratesOpen ? rates : rates.slice(0, VISIBLE)
 
@@ -543,18 +546,20 @@ const canGoBack = monthOffset > 0
                   <p style={{ fontSize: 13, color: "#67717F" }}>{property.destinationName}{property.neighborhood ? ` · ${property.neighborhood}` : ""}</p>
                 </div>
               ) : (
-                /* price — alquiler/compra */
-                property.price ? (
+                /* Sin tarifas por período, mostramos el precio base configurado. */
+                rates.length === 0 && property.price ? (
                   <div className="flex items-baseline gap-2 mb-4">
                     <span style={{ fontSize: "15px", color: "#67717F" }}>Desde</span>
                     <span style={{ fontSize: "32px", fontWeight: 600, color: "#B5933F", letterSpacing: "-.02em" }}>
-                      ${property.price.toLocaleString("es-AR")}
+                      {basePrice.cur}{basePrice.num}
                     </span>
-                    <span style={{ fontSize: "15px", color: "#67717F" }}>/ noche</span>
+                    {property.priceLabel && (
+                      <span style={{ fontSize: "15px", color: "#67717F" }}>{property.priceLabel}</span>
+                    )}
                   </div>
-                ) : (
+                ) : rates.length === 0 ? (
                   <p className="mb-4 text-lg font-semibold" style={{ color: "#1a1a2e" }}>Precio a consultar</p>
-                )
+                ) : null
               )}
 
               {/* selected dates display */}
@@ -573,16 +578,29 @@ const canGoBack = monthOffset > 0
                     <span style={{ fontSize: "15px", fontWeight: 600, color: "#1a1a2e" }}>Tarifas por temporada</span>
                     <span style={{ fontSize: "13px", color: "#67717F" }}>{rates.length} temporadas</span>
                   </div>
-                  <div>
-                    {visibleRates.map((r, i) => (
-                      <div key={i} className="flex items-center justify-between py-3" style={{ borderBottom: "1px solid #EDF0F4" }}>
-                        <span style={{ fontSize: "14.5px", color: "#67717F" }}>{r.label}</span>
-                        <span style={{ fontSize: "16px", fontWeight: 600, color: "#14171B", letterSpacing: "-.01em" }}>
-                          <span style={{ color: "#B5933F", fontWeight: 500, fontSize: ".78em", marginRight: ".1em" }}>$</span>
-                          {r.pricePerNight?.toLocaleString("es-AR")}
-                        </span>
-                      </div>
-                    ))}
+                  <div className="space-y-2">
+                    {visibleRates.map((r, i) => {
+                      const price = fmtPrice(r.pricePerNight, property.currency)
+                      return (
+                        <div key={r.id ?? i} className="flex items-center justify-between gap-4 rounded-2xl px-4 py-3"
+                          style={{ background: "#F7F8FA", border: "1px solid #EDF0F4" }}>
+                          <div className="min-w-0">
+                            <p className="truncate" style={{ fontSize: "14.5px", fontWeight: 600, color: "#263244" }}>{r.label}</p>
+                            <p className="mt-1 flex items-center gap-1.5" style={{ fontSize: "12.5px", color: "#67717F" }}>
+                              <span aria-hidden="true">📅</span>
+                              <span>{formatSeasonDate(r.dateFrom)} al {formatSeasonDate(r.dateTo)}</span>
+                            </p>
+                          </div>
+                          <div className="shrink-0 text-right">
+                            <p style={{ fontSize: "17px", fontWeight: 700, color: "#14171B", letterSpacing: "-.01em" }}>
+                              <span style={{ color: "#B5933F", fontWeight: 600, fontSize: ".8em", marginRight: ".18em" }}>{price.cur}</span>
+                              {price.num}
+                            </p>
+                            <p style={{ fontSize: "11px", color: "#67717F" }}>total del período</p>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                   {rates.length > VISIBLE && (
                     <button

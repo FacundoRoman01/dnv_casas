@@ -130,7 +130,12 @@ export default function PropertyForm() {
       }
       // Validación de temporadas: la fecha desde tiene que ser anterior a la hasta.
       for (const s of form.seasonPrices) {
-        if (s.dateFrom && s.dateTo && s.dateFrom >= s.dateTo) {
+        if (!s.dateFrom || !s.dateTo) {
+          setError(`Temporada "${s.label || "sin nombre"}": completá las fechas con el formato DD/MM/AAAA.`)
+          setSaving(false)
+          return
+        }
+        if (s.dateFrom >= s.dateTo) {
           setError(`Temporada "${s.label || "sin nombre"}": la fecha inicio debe ser anterior a la fecha fin.`)
           setSaving(false)
           return

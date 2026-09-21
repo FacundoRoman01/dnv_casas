@@ -1,3 +1,6 @@
+import { useEffect, useRef, useState } from "react"
+import { findOverlappingIndexes, formatSeasonDate, parseSeasonDate } from "../../lib/seasonDates"
+
 /**
  * SeasonPrices: editor de precios por temporada de la propiedad.
  * Recibe el array `seasons` (cada una { label, pricePerNight, dateFrom, dateTo })
@@ -5,28 +8,48 @@
  * eso lo hace la página que lo contiene al submitear).
  */
 
-// Devuelve el conjunto de índices de `seasons` que se solapan con al menos otra
-// temporada (mismo criterio que el backend en Property.replaceSeasonPrices: dos
-// rangos [dateFrom, dateTo] se pisan si no son estrictamente uno antes del otro).
-// Se calcula acá, en el frontend, para avisar ANTES de mandar el submit — el
-// backend sigue siendo la validación real y definitiva, esto es solo UX.
-function findOverlappingIndexes(seasons) {
-  const overlapping = new Set()
-  for (let i = 0; i < seasons.length; i++) {
-    const a = seasons[i]
-    if (!a.dateFrom || !a.dateTo) continue
-    for (let j = i + 1; j < seasons.length; j++) {
-      const b = seasons[j]
-      if (!b.dateFrom || !b.dateTo) continue
-      // Se superponen si NO es cierto que uno termine antes de que empiece el otro.
-      const seSuperponen = a.dateFrom <= b.dateTo && b.dateFrom <= a.dateTo
-      if (seSuperponen) {
-        overlapping.add(i)
-        overlapping.add(j)
-      }
-    }
+function SeasonDateInput({ value, onChange, invalidBorder }) {
+  const [text, setText] = useState(() => formatSeasonDate(value))
+  const editing = useRef(false)
+  const picker = useRef(null)
+
+  useEffect(() => {
+    if (!editing.current) setText(formatSeasonDate(value))
+  }, [value])
+
+  const invalid = text !== "" && !parseSeasonDate(text)
+
+  function updateText(nextText) {
+    setText(nextText)
+    onChange(parseSeasonDate(nextText))
   }
-  return overlapping
+
+  function openPicker() {
+    if (picker.current?.showPicker) picker.current.showPicker()
+    else picker.current?.focus()
+  }
+
+  return (
+    <div>
+      <div className="flex gap-1">
+        <input type="text" inputMode="numeric" placeholder="DD/MM/AAAA"
+          aria-label="Fecha en formato día, mes y año" aria-invalid={invalid}
+          className={`w-full min-w-0 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent ${invalid || invalidBorder ? "border-red-300" : "border-gray-200"}`}
+          value={text} onFocus={() => { editing.current = true }}
+          onBlur={() => { editing.current = false }}
+          onChange={e => updateText(e.target.value)} />
+        <button type="button" aria-label="Elegir fecha del calendario" onClick={openPicker}
+          className="border border-gray-200 rounded-lg px-2 text-sm" title="Abrir calendario">📅</button>
+      </div>
+      <input ref={picker} type="date" className="sr-only" tabIndex={-1}
+        aria-hidden="true" value={value || ""}
+        onChange={e => {
+          onChange(e.target.value)
+          setText(formatSeasonDate(e.target.value))
+        }} />
+      {invalid && <p className="text-xs text-red-500 mt-1">Usá DD/MM/AAAA con una fecha válida.</p>}
+    </div>
+  )
 }
 
 export default function SeasonPrices({ seasons, onChange }) {
@@ -68,19 +91,17 @@ export default function SeasonPrices({ seasons, onChange }) {
               </div>
               <div>
                 <label className="text-xs text-gray-500 block mb-1">Desde</label>
-                <input type="date"
-                  className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent ${enConflicto ? "border-red-300" : "border-gray-200"}`}
-                  value={s.dateFrom} onChange={e => update(i, "dateFrom", e.target.value)} />
+                <SeasonDateInput value={s.dateFrom} invalidBorder={enConflicto}
+                  onChange={value => update(i, "dateFrom", value)} />
               </div>
               <div>
                 <label className="text-xs text-gray-500 block mb-1">Hasta</label>
-                <input type="date"
-                  className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent ${enConflicto ? "border-red-300" : "border-gray-200"}`}
-                  value={s.dateTo} onChange={e => update(i, "dateTo", e.target.value)} />
+                <SeasonDateInput value={s.dateTo} invalidBorder={enConflicto}
+                  onChange={value => update(i, "dateTo", value)} />
               </div>
               <div className="flex gap-2">
                 <div className="flex-1">
-                  <label className="text-xs text-gray-500 block mb-1">$/noche</label>
+                  <label className="text-xs text-gray-500 block mb-1">Total del período</label>
                   <input type="number" placeholder="0"
                     className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-accent ${enConflicto ? "border-red-300" : "border-gray-200"}`}
                     value={s.pricePerNight} onChange={e => update(i, "pricePerNight", e.target.value)} />
