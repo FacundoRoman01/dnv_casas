@@ -9,6 +9,7 @@ import { whatsappLink, propertyMessage } from "../lib/whatsapp"
 import { CATEGORY_LABEL, CATEGORY_ROUTE } from "../lib/constants"
 import { fmtPrice } from "../lib/format"
 import { formatSeasonDate } from "../lib/seasonDates"
+import { getMaxMonthOffset, getMonthCells, getVisibleMonths } from "../lib/calendarMonths"
 
 /**
  * Detalle de una propiedad de ALQUILER o INTERCAMBIO (categorías 0 y 1). Se
@@ -105,28 +106,20 @@ function dayStatus(date, availability) {
 function CalendarMonth({ year, month, sel, onPick, availability }) {
   const DAYS = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"]
   const firstDay = new Date(year, month, 1)
-  const lastDay  = new Date(year, month + 1, 0)
-  // getDay() es 0=Domingo; acá arrancamos la semana en lunes, por eso el -1 y el
-  // ajuste a 6 cuando cae domingo.
-  let startDow = firstDay.getDay() - 1
-  if (startDow < 0) startDow = 6
-
-  const cells = []
-  for (let i = 0; i < startDow; i++) cells.push(null)
-  for (let d = 1; d <= lastDay.getDate(); d++) cells.push(new Date(year, month, d))
+  const cells = getMonthCells(year, month)
 
   const raw = firstDay.toLocaleDateString("es-AR", { month: "long", year: "numeric" }).toLowerCase()
   const monthName = raw.charAt(0).toUpperCase() + raw.slice(1)
 
   return (
-    <div style={{ flex: 1 }}>
+    <div className="w-full min-w-0">
       <p className="text-sm font-semibold text-center mb-3 capitalize" style={{ color: "#1a1a2e" }}>{monthName}</p>
       <div className="grid grid-cols-7 gap-px mb-1">
         {DAYS.map(d => <div key={d} className="text-center text-xs font-medium py-1" style={{ color: "#67717F" }}>{d}</div>)}
       </div>
       <div className="grid grid-cols-7 gap-px">
         {cells.map((date, i) => {
-          if (!date) return <div key={i} />
+          if (!date) return <div key={i} className="aspect-square" aria-hidden="true" />
           const key = toLocalISODate(date)
           const status = dayStatus(date, availability)
           const isIn  = sel.in  === key
@@ -185,7 +178,8 @@ const [lbOpen, setLbOpen]   = useState(false)
   const [lbIdx,  setLbIdx]    = useState(0)
   const [sel,    setSel]      = useState({ in: null, out: null })
   const [ratesOpen, setRatesOpen] = useState(false)
-  const [monthOffset, setMonthOffset] = useState(0) // agregado recien por facundo
+  const [monthOffset, setMonthOffset] = useState(0)
+  const [isDesktopCalendar, setIsDesktopCalendar] = useState(() => window.matchMedia("(min-width: 768px)").matches)
   const closeLb = useCallback(() => setLbOpen(false), [])
 
   // Al cambiar de propiedad (mismo componente, otro :id) reseteamos selección de
@@ -196,6 +190,20 @@ const [lbOpen, setLbOpen]   = useState(false)
     setLbOpen(false)
     setMonthOffset(0)
   }, [id])
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)")
+    const update = event => setIsDesktopCalendar(event.matches)
+    media.addEventListener("change", update)
+    return () => media.removeEventListener("change", update)
+  }, [])
+
+  const visibleMonthCount = isDesktopCalendar ? 2 : 1
+  const maxMonthOffset = getMaxMonthOffset(visibleMonthCount)
+
+  useEffect(() => {
+    setMonthOffset(offset => Math.min(offset, maxMonthOffset))
+  }, [maxMonthOffset])
 
   if (loading) return (
     <div className="max-w-6xl mx-auto px-6 pt-28 pb-16 animate-pulse space-y-6">
@@ -248,26 +256,10 @@ const [lbOpen, setLbOpen]   = useState(false)
   // related (exclude self)
   const relatedItems = (related?.items || []).filter(p => String(p.id) !== String(id)).slice(0, 4)
 
-  // calendar — show current + next month
-  // const now = new Date()
-  // const months = [
-  //   { year: now.getFullYear(), month: now.getMonth() },
-  //   { year: now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear(), month: (now.getMonth() + 1) % 12 },
-  // ]
-
-
-  // calendar — muestra 2 meses consecutivos, arrancando en (hoy + monthOffset).
-// monthOffset se mueve con las flechas ← → y nunca deja ir antes del mes actual.
-const now = new Date()
-const baseMonthIndex = now.getFullYear() * 12 + now.getMonth() + monthOffset
-const months = [0, 1].map(i => {
-  const idx = baseMonthIndex + i
-  return { year: Math.floor(idx / 12), month: idx % 12 }
-})
-const canGoBack = monthOffset > 0
-
-
-
+  const now = new Date()
+  const months = getVisibleMonths(now, Math.min(monthOffset, maxMonthOffset), visibleMonthCount)
+  const canGoBack = monthOffset > 0
+  const canGoForward = monthOffset < maxMonthOffset
 
   // Lógica de selección del rango en el calendario: el primer toque fija el
   // check-in; el segundo el check-out (y si es anterior, se invierten).
@@ -487,7 +479,7 @@ const canGoBack = monthOffset > 0
               </div>
               {/* months */}
 {/* months */}
-<div className="flex items-center gap-3">
+<div className="flex items-center gap-2 sm:gap-3">
   <button
     type="button"
     onClick={() => canGoBack && setMonthOffset(o => o - 1)}
@@ -504,7 +496,7 @@ const canGoBack = monthOffset > 0
     {Icons.arrowL}
   </button>
 
-<div className="flex flex-col md:flex-row items-center justify-center gap-8" style={{ flex: 1 }}>
+<div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6 md:gap-8 min-w-0" style={{ flex: 1 }}>
     {months.map(m => (
       <CalendarMonth
         key={`${m.year}-${m.month}`}
@@ -519,16 +511,22 @@ const canGoBack = monthOffset > 0
 
   <button
     type="button"
-    onClick={() => setMonthOffset(o => o + 1)}
+    onClick={() => canGoForward && setMonthOffset(o => o + 1)}
+    disabled={!canGoForward}
     className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full transition"
-    style={{ border: "1px solid #DCE2E9", color: "#44536A", cursor: "pointer", background: "#fff" }}
+    style={{
+      border: "1px solid #DCE2E9",
+      color: canGoForward ? "#44536A" : "#ccc",
+      cursor: canGoForward ? "pointer" : "not-allowed",
+      background: "#fff",
+    }}
     aria-label="Meses siguientes"
   >
     {Icons.arrowR}
   </button>
 </div>
               <p className="mt-4 text-xs" style={{ color: "#67717F" }}>
-                Tocá los días disponibles para armar tu reserva. El equipo confirma disponibilidad por WhatsApp.
+                Tocá los días disponibles para armar tu reserva. Para fechas posteriores a los próximos 12 meses, consultanos por WhatsApp.
               </p>
             </div>
 
