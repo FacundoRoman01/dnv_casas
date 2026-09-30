@@ -40,7 +40,7 @@ export default function Home() {
       <DestinationsSection destinations={destinations} />
       <WaysSection />
       <AboutSection />
-      <StatsSection destinations={destinations} />
+      <StatsSection />
       <FeaturedSection featured={featured} loading={loadingProps} />
       <ClosingCTASection />
     </div>

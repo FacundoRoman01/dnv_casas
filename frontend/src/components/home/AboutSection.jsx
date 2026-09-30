@@ -3,7 +3,7 @@ import imgQuienesSomos from "../../assets/images/img-quienessomos-dnvcasas.jpg"
 
 /**
  * Sección "Quiénes somos" del home: contá la historia de la marca (columna de
- * texto) al lado de la foto del equipo con el badge de "+1.200 familias".
+ * texto) al lado de la foto del equipo con el badge de "+10.000 familias".
  * Es estática, no recibe props ni pega a la API.
  * El botón "Hablar con nosotros" abre WhatsApp: ahí se cierra toda operación,
  * no hay checkout online.
@@ -22,7 +22,7 @@ export default function AboutSection() {
                 </svg>
               </span>
               <div>
-                <b style={{ fontSize: 15, fontWeight: 600, display: "block", lineHeight: 1.1 }}>+1.200 familias</b>
+                <b style={{ fontSize: 15, fontWeight: 600, display: "block", lineHeight: 1.1 }}>+10.000 familias</b>
                 <small style={{ fontSize: 13, color: "rgba(255,255,255,.85)" }}>ya viajaron con nosotros</small>
               </div>
             </div>

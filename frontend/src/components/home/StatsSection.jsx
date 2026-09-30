@@ -1,11 +1,8 @@
 import { whatsappLink } from "../../lib/whatsapp"
 
-// El conteo de destinos sale de la API: estaba hardcodeado en "5" y había 6
-// cargados, con las tarjetas mostrando 6 justo arriba de este cartel.
-function stats(destinations) {
+function stats() {
   return [
-    { value: "+1.200", label: "familias viajaron con nosotros" },
-    { value: String(destinations.length), label: "destinos elegidos a mano" },
+    { value: "+10.000", label: "familias viajaron con nosotros" },
     { value: "9", label: "años acompañando viajes" },
   ]
 }
@@ -21,21 +18,24 @@ function WhatsAppIcon({ className = "w-5 h-5" }) {
 
 /**
  * Sección "Confianza" del home: números (familias, destinos, años) más un CTA
- * a WhatsApp. Recibe `destinations` sólo para contar cuántos hay (ver stats()).
+ * a WhatsApp.
  * El botón "Hablar por WhatsApp" abre wa.me: ahí se cierra la operación.
  */
-export default function StatsSection({ destinations = [] }) {
+export default function StatsSection() {
   return (
     <section style={{ background: "#2A3340" }} className="py-20 text-white">
       <div className="max-w-7xl mx-auto px-4">
         <p className="text-[#c8a96e] text-xs font-semibold tracking-widest uppercase mb-3">CONFIANZA</p>
         <h2 className="font-light text-white mb-12" style={{ fontSize: "clamp(28px,3.5vw,42px)", marginTop: 14 }}>
-          Gente que viaja como vos,<br />cuidando como vos
+          Vos disfrutás; nosotros nos ocupamos.
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-0 mb-16">
-          {stats(destinations).map((stat, i) => (
-            <div key={i} className="py-[6px]" style={{ borderLeft: i > 0 ? "1px solid rgba(255,255,255,.12)" : undefined, paddingLeft: i > 0 ? "32px" : undefined }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-0 mb-16">
+          {stats().map((stat, i) => (
+            <div
+              key={i}
+              className={`py-[6px] ${i > 0 ? "border-t border-white/10 pt-8 sm:border-l sm:border-t-0 sm:pl-8 sm:pt-[6px]" : ""}`}
+            >
               <div className="text-white" style={{ fontSize: "clamp(38px,4.4vw,58px)", fontWeight: 200, letterSpacing: "-0.03em", display: "block" }}>
                 {stat.value}
               </div>

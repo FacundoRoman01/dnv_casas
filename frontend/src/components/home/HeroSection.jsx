@@ -183,7 +183,7 @@ export default function HeroSection({
             <span className="mt-2 inline-block font-light text-white sm:mt-3">
               Tu próxima casa
               <br className="sm:hidden" />
-              {" "}lejos de casa.
+              {" "}fuera de casa.
             </span>
           </h1>
 
@@ -209,13 +209,9 @@ export default function HeroSection({
               lg:text-[19px]
             "
           >
-            Alquilá, intercambiá o comprá casas en los lugares
-            que querés volver a ver.
-
-            <br className="hidden sm:block" />
-
-            Sin pagos online: cerramos todo, de igual a igual,
-            por WhatsApp.
+            En DNV no alquilás solo una casa: tenés personas atrás que se ocupan de todo.
+            Contratos, pagos, coordinación y, si pasa algo, estamos. Hacemos más de 300
+            alquileres por temporada y conocemos el negocio de punta a punta.
           </p>
 
           {/* =================================================
@@ -462,7 +458,7 @@ export default function HeroSection({
                   2 huéspedes
                 </option>
 
-                {[1, 2, 4, 6, 8].map(n => (
+                {Array.from({ length: 20 }, (_, index) => index + 1).map(n => (
                   <option
                     key={n}
                     value={n}
@@ -691,7 +687,7 @@ export default function HeroSection({
 
               <div>
                 <b className="block text-[18px] font-semibold leading-tight text-white">
-                  +1.200 familias
+                  +10.000 familias
                 </b>
 
                 <small className="text-[12.5px] text-white/70">

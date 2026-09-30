@@ -10,7 +10,7 @@ import api from "../../lib/api"
 // Amenidades disponibles: se guardan como array de keys (strings) en la propiedad.
 const AMENITY_OPTIONS = [
   { key: "wifi", label: "Wi-Fi" }, { key: "parking", label: "Cochera" },
-  { key: "bbq", label: "Parrilla" }, { key: "linen", label: "Ropa de cama" },
+  { key: "bbq", label: "Parrilla" }, { key: "linen", label: "Ropa blanca" },
   { key: "pets", label: "Pet-friendly" }, { key: "fireplace", label: "Estufa a leña" },
   { key: "pool", label: "Pileta" }, { key: "ac", label: "Aire acondicionado" },
   { key: "heating", label: "Calefacción" }, { key: "tv", label: "TV / Cable" },

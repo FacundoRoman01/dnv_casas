@@ -103,7 +103,7 @@ function SearchBar({ filters, updateFilter, destinations }) {
           <svg className="w-3 h-3" fill="none" stroke="#C9AB55" strokeWidth={2} viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
           Huéspedes
         </span>
-        <input type="number" min="1" className={inputCls} style={inputStyle}
+        <input type="number" min="1" max="20" className={inputCls} style={inputStyle}
           placeholder="2 huéspedes" value={filters.guests} onChange={e => updateFilter("guests", e.target.value)} />
       </div>
       <button
@@ -372,7 +372,7 @@ function FilterContent({ filters, updateFilter, setFilters, type, destinations }
       <div className="mb-5">
         <p className="text-sm font-semibold text-[#1a1a2e] mb-2">Tipo de propiedad</p>
         <div className="flex flex-col gap-2">
-          {["Casa", "Departamento", "Cabaña", "Loft"].map(tipo => (
+          {["Casa", "Departamento"].map(tipo => (
             <label key={tipo} className="flex items-center gap-2 cursor-pointer text-sm" style={{ color: "#67717F" }}>
               <input type="checkbox" className="rounded" style={{ accentColor: "#C9AB55" }}
                 checked={filters.propertyType === PROPERTY_TYPE_MAP[tipo]}
@@ -571,13 +571,16 @@ export default function Listings({ type }) {
           <div className="flex-1 min-w-0">
             {type === "intercambios" && <ComoFunciona />}
 
-            <div className="flex items-center justify-between mb-4">
-              <p style={{ fontSize: "22px", fontWeight: 500, letterSpacing: "-.01em", color: "#14171B" }}>
+            <div className="flex items-center justify-between gap-3 mb-5">
+              <p
+                className="flex shrink-0 items-baseline gap-1 whitespace-nowrap text-[18px] sm:text-[22px]"
+                style={{ fontWeight: 500, letterSpacing: "-.01em", color: "#14171B" }}
+              >
                 <span style={{ color: "#B5933F", fontWeight: 600 }}>{total}</span>{" "}
                 {cfg.countWord}
               </p>
               <select
-                className="text-sm border border-gray-200 rounded-full px-4 py-2 bg-white focus:outline-none"
+                className="min-w-0 w-[150px] sm:w-auto text-[13px] sm:text-sm border border-gray-200 rounded-full px-3 sm:px-4 py-2 bg-white focus:outline-none"
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value)}
               >
@@ -606,7 +609,12 @@ export default function Listings({ type }) {
                 ))}
               </div>
             ) : items.length === 0 ? (
-              destinoSinInventario ? (
+              type === "intercambios" ? (
+                <div className="text-center py-24 text-gray-400">
+                  <div className="text-5xl mb-4">🏠</div>
+                  <p className="text-xl text-[#1a1a2e] font-light">En proceso</p>
+                </div>
+              ) : destinoSinInventario ? (
                 // El destino simplemente no tiene casas todavía. Antes caía en el
                 // mensaje de abajo y mandaba a "quitar algún filtro" a alguien que
                 // no había puesto ninguno — clickeó una tarjeta en el home.

@@ -2,8 +2,11 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useDestinations } from "../../hooks/useProperties"
 import { whatsappLink } from "../../lib/whatsapp"
+import brandLogo from "../../assets/images/logo-donde-nos-vamos.jpeg"
 
 const INSTAGRAM_URL = import.meta.env.VITE_INSTAGRAM
+const TIKTOK_URL = "https://www.tiktok.com/@donde.nos.vamos"
+const CONTACT_EMAIL = "dondenosvamoscasas@gmail.com"
 
 // Tope de destinos visibles antes de necesitar "Ver más". Si la lista crece
 // (nuevos destinos cargados desde el admin), la columna deja de estirarse sin
@@ -34,9 +37,11 @@ export default function Footer() {
           {/* col 1: brand */}
           <div className="col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 bg-[#C9AB55] rounded-full flex items-center justify-center">
-                <div className="w-2.5 h-2.5 bg-[#1a1a2e] rounded-full" />
-              </div>
+              <img
+                src={brandLogo}
+                alt="¿Dónde nos vamos?"
+                className="h-16 w-16 rounded-2xl object-cover"
+              />
               <span className="text-white font-medium" style={{ fontSize: "21px" }}>¿Dónde nos vamos?</span>
             </div>
             <p className="text-white/60 text-sm leading-relaxed mb-5" style={{ lineHeight: "1.8" }}>
@@ -113,12 +118,12 @@ export default function Footer() {
                   WhatsApp
                 </a>
               </li>
-              {/* <li>
-                <a href="mailto:hola@dondenosvamos.com"
+              <li>
+                <a href={`mailto:${CONTACT_EMAIL}`}
                   className="text-white/70 hover:text-white text-sm transition-colors">
-                  hola@dondenosvamos.com
+                  {CONTACT_EMAIL}
                 </a>
-              </li> */}
+              </li>
               {/* Apuntaba a https://instagram.com — la home de Instagram, no una
                   cuenta. Ahora sale de VITE_INSTAGRAM y si no está, no se muestra:
                   mejor sin link que con uno que no lleva a ningún lado. */}
@@ -131,6 +136,12 @@ export default function Footer() {
                 </li>
               )}
               <li>
+                <a href={TIKTOK_URL} target="_blank" rel="noreferrer"
+                  className="text-white/70 hover:text-white text-sm transition-colors">
+                  TikTok
+                </a>
+              </li>
+              <li>
                 <a href={whatsappLink("Hola 👋 Me gustaría publicar mi propiedad en ¿Dónde nos vamos?")} target="_blank" rel="noreferrer" className="text-white/70 hover:text-white text-sm transition-colors">
                   Publicá tu casa
                 </a>
@@ -142,7 +153,7 @@ export default function Footer() {
         {/* bottom bar */}
         <div className="border-t border-white/10 pt-7 flex flex-col lg:flex-row justify-between items-center gap-4" style={{ marginTop: "64px" }}>
           <p className="text-white/50 text-sm">
-            © {new Date().getFullYear()} ¿Dónde nos vamos? · Hecho con cariño en Argentina.
+            © {new Date().getFullYear()} ¿Dónde nos vamos? · Hecho en familia en Argentina.
           </p>
           <p className="text-white/50 text-sm">
             Reservas humanas, sin pago online.

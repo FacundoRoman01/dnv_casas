@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link, NavLink, useLocation } from "react-router-dom"
 import { whatsappLink } from "../../lib/whatsapp"
+import brandLogo from "../../assets/images/logo-donde-nos-vamos.jpeg"
 
 const NAV_LINKS = [
   { to: "/", label: "Inicio" },
@@ -63,11 +64,13 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 bg-[#C9AB55] rounded-full flex items-center justify-center">
-            <div className="w-2.5 h-2.5 bg-[#1a1a2e] rounded-full" />
-          </div>
+          <img
+            src={brandLogo}
+            alt="¿Dónde nos vamos?"
+            className="h-11 w-11 rounded-xl object-cover shadow-sm sm:h-12 sm:w-12"
+          />
           <span
-            className="font-medium transition-colors duration-300 whitespace-nowrap"
+            className="hidden font-medium transition-colors duration-300 whitespace-nowrap sm:inline"
             style={{ fontSize: "19px", color: transparent ? "#fff" : "#14171B" }}
           >
             ¿Dónde nos <strong>vamos?</strong>

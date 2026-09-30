@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react"
 import api from "../lib/api"
+import { sortDestinations } from "../lib/destinationOrder"
 
 /**
  * Hooks de data fetching públicos (catálogo). Cada uno pega contra el back REST
@@ -66,7 +67,7 @@ export function useDestinations() {
 
   useEffect(() => {
     api.get("/destinations")
-      .then(res => setDestinations(res.data))
+      .then(res => setDestinations(sortDestinations(res.data)))
       .catch(() => setDestinations([]))
   }, [])
 
