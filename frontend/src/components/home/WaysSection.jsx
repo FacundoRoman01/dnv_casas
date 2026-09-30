@@ -5,7 +5,7 @@ import { Link } from "react-router-dom"
 const WAYS = [
   {
     title: "Alquilar",
-    desc: "Casas y departamentos por temporada, fin de semana o la escapada que necesites. Precio claro por noche.",
+    desc: "Casas y departamentos por temporada, fin de semana o la escapada que necesites. Precio claro por estadía.",
     cta: "Ver alquileres",
     to: "/alquileres",
     stripe: "#c8a96e",
