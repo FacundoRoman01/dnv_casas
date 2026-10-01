@@ -439,6 +439,22 @@ export default function ComprasDetail() {
                   {I.pin} {property.destinationName}
                   {property.neighborhood ? ` · ${property.neighborhood}` : ""}
                 </span>
+                {property.googleMapsUrl && (
+                  <a
+                    href={property.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Ver ubicación de ${property.title} en Google Maps`}
+                    style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      padding: "7px 12px", borderRadius: 999,
+                      color: C.goldDeep, background: "rgba(201,171,85,.12)",
+                      fontSize: 13, fontWeight: 600, textDecoration: "none",
+                    }}
+                  >
+                    {I.pin} Ver ubicación en Google Maps ↗
+                  </a>
+                )}
               </div>
             </div>
           </div>

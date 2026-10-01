@@ -181,6 +181,11 @@ Tablas principales:
 
 Propiedades y destinos usan borrado lógico. Las colecciones hijas de una propiedad se persisten en cascada.
 
+`Properties` también conserva enlaces opcionales de contenido externo. `YoutubeUrl`
+permite el recorrido embebido y `GoogleMapsUrl` abre la ubicación en Google Maps.
+Ambos se validan en el aggregate `Property`; no se almacenan claves de API ni
+coordenadas para la integración actual.
+
 ## Contratos críticos
 
 ### Enums ordinales

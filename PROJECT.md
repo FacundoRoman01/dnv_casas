@@ -15,7 +15,8 @@ Puede:
 - navegar el catálogo público;
 - explorar alquileres, intercambios y propiedades en venta;
 - filtrar por destino, barrio, fechas, capacidad, dormitorios, precio y tipo;
-- consultar detalles, imágenes, prestaciones, disponibilidad y video cuando exista;
+- consultar detalles, imágenes, prestaciones, disponibilidad, video y ubicación
+  en Google Maps cuando existan;
 - iniciar una consulta por WhatsApp.
 
 ### Administradora
@@ -27,7 +28,8 @@ Puede autenticarse en el backoffice para:
 - administrar destinos;
 - gestionar imágenes y su orden;
 - definir precios por temporada;
-- actualizar disponibilidad.
+- actualizar disponibilidad;
+- cargar o quitar el enlace opcional de Google Maps de cada propiedad.
 
 ## Alcance actual
 

@@ -31,10 +31,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * prefijo "is" en isFeatured/isCover, y sobre todo el ORDEN exacto de los campos
  * de cada DTO.
  *
- * Nota: youtubeUrl se agregó al final de PropertyDto (después de isFeatured),
- * por eso va último tanto en el constructor de unaPropiedad() como en la lista
- * esperada de propertyDto_ordenDeCampos — no rompe el resto del contrato golden
- * original, que sigue intacto en el mismo orden.
+ * Nota: youtubeUrl y googleMapsUrl se agregaron al final de PropertyDto. No
+ * alteran el orden del contrato golden original.
  */
 @JsonTest
 @Import(JacksonConfig.class)
@@ -60,7 +58,7 @@ class JsonContractTest {
                 List.of(new PropertySeasonPriceDto(1, "Alta", new BigDecimal("100.00"),
                         LocalDate.of(2027, 1, 1), LocalDate.of(2027, 2, 1))),
                 List.of(new PropertyAvailabilityDto(LocalDate.of(2027, 1, 5), AvailabilityStatus.UNAVAILABLE)),
-                false, null);
+                false, null, null);
     }
 
     @Test
@@ -158,10 +156,10 @@ class JsonContractTest {
 
     // El corazón del contrato: los campos del detalle tienen que salir en este
     // orden exacto. Si alguien agrega/mueve un campo del DTO, este test lo caza.
-    // youtubeUrl se agregó AL FINAL a propósito (ver nota de la clase), así que
-    // el orden original de los 25 campos golden queda intacto y youtubeUrl es el 26.
+    // Los campos opcionales nuevos se agregan AL FINAL a propósito, así que el
+    // orden original de los 25 campos golden queda intacto.
     @Test
-    @DisplayName("PropertyDto: los campos en el orden exacto del contrato (25 originales + youtubeUrl al final)")
+    @DisplayName("PropertyDto: los campos originales y opcionales conservan el orden acordado")
     void propertyDto_ordenDeCampos() throws Exception {
         String json = mapper.writeValueAsString(
                 unaPropiedad(LocalDateTime.now(), BigDecimal.ONE));
@@ -173,7 +171,7 @@ class JsonContractTest {
                 "bedrooms", "bathrooms", "squareMeters", "landSize", "capacity",
                 "status", "whatsAppMessage", "createdAt", "coverImageUrl",
                 "images", "amenities", "seasonPrices", "availability", "isFeatured",
-                "youtubeUrl");
+                "youtubeUrl", "googleMapsUrl");
     }
 
     @Test
