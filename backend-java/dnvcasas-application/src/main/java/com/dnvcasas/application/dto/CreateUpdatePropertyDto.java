@@ -61,6 +61,11 @@ public record CreateUpdatePropertyDto(
     @Size(max = 500, message = "El link de YouTube es demasiado largo")
     String youtubeUrl,
 
+    // Enlace opcional obtenido desde "Compartir" en Google Maps. La pertenencia
+    // al dominio de Google se valida en Property para mantener una única regla.
+    @Size(max = 1000, message = "El link de Google Maps es demasiado largo")
+    String googleMapsUrl,
+
     // Mensaje en inglés a propósito: viene calcado del contrato de errores del backend .NET.
     @NotNull(message = "The Amenities field is required.")
     List<String> amenities,

@@ -165,12 +165,17 @@ class GoldenIT {
 
         JsonNode esperado = normalizar(mapper.readTree(e.cuerpoEsperado()));
         JsonNode obtenido = normalizar(mapper.readTree(actual));
-        // Los golden son anteriores a V3. Sólo en el detalle de una propiedad
-        // sin video se admite el nuevo campo opcional con valor null.
+        // Los golden son anteriores a los campos opcionales de V3/V4. En el
+        // detalle se toleran únicamente cuando son null; un valor real sigue
+        // siendo un cambio visible que la comparación debe detectar.
         if (esperado.isObject() && esperado.has("images") && esperado.has("isFeatured")
-                && !esperado.has("youtubeUrl") && obtenido.isObject()
-                && obtenido.has("youtubeUrl") && obtenido.get("youtubeUrl").isNull()) {
-            ((ObjectNode) obtenido).remove("youtubeUrl");
+                && obtenido.isObject()) {
+            for (String campoOpcional : List.of("youtubeUrl", "googleMapsUrl")) {
+                if (!esperado.has(campoOpcional) && obtenido.has(campoOpcional)
+                        && obtenido.get(campoOpcional).isNull()) {
+                    ((ObjectNode) obtenido).remove(campoOpcional);
+                }
+            }
         }
         assertThat(obtenido)
                 .as("body de %s", e.nombre())

@@ -42,7 +42,7 @@ const EMPTY_FORM = {
   title: "", description: "", category: 0, propertyType: 0, destinationId: "",
   neighborhood: "", price: "", priceLabel: "por noche", currency: "ARS",
   bedrooms: 1, bathrooms: 1, squareMeters: "", landSize: "",
-  capacity: 2, whatsAppMessage: "", youtubeUrl: "",
+  capacity: 2, whatsAppMessage: "", youtubeUrl: "", googleMapsUrl: "",
   amenities: [], seasonPrices: [], availability: [],
 }
 
@@ -88,6 +88,7 @@ export default function PropertyForm() {
         capacity: property.capacity,
         whatsAppMessage: property.whatsAppMessage,
         youtubeUrl: property.youtubeUrl ?? "",
+        googleMapsUrl: property.googleMapsUrl ?? "",
         amenities: property.amenities || [],
         seasonPrices: property.seasonPrices?.map(s => ({
           label: s.label,
@@ -158,6 +159,7 @@ export default function PropertyForm() {
         // Vacío => null: mismo criterio que el resto de los campos opcionales, para
         // no mandar "" al back cuando en realidad significa "sin video cargado".
         youtubeUrl: form.youtubeUrl === "" ? null : form.youtubeUrl,
+        googleMapsUrl: form.googleMapsUrl === "" ? null : form.googleMapsUrl,
         seasonPrices: form.seasonPrices.map(s => ({
           ...s, pricePerNight: Number(s.pricePerNight)
         })),
@@ -177,7 +179,7 @@ export default function PropertyForm() {
       }
       navigate("/admin")
     } catch (err) {
-      setError("Ocurrió un error al guardar. Revisá los campos.")
+      setError(err.response?.data?.error || "Ocurrió un error al guardar. Revisá los campos.")
     } finally {
       setSaving(false)
     }
@@ -351,6 +353,13 @@ export default function PropertyForm() {
                     className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent"
                     value={form.youtubeUrl} onChange={e => set("youtubeUrl", e.target.value)} />
                   <p className="text-xs text-gray-400 mt-1">Se muestra como video embebido en la ficha pública de la propiedad.</p>
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs font-semibold text-gray-500 uppercase block mb-1">Ubicación en Google Maps (opcional)</label>
+                  <input type="url" placeholder="https://maps.app.goo.gl/..."
+                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent"
+                    value={form.googleMapsUrl} onChange={e => set("googleMapsUrl", e.target.value)} />
+                  <p className="text-xs text-gray-400 mt-1">Pegá el enlace que obtenés desde “Compartir” en Google Maps. Se mostrará como un botón en la ficha pública.</p>
                 </div>
               </div>
             </div>

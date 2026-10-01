@@ -24,9 +24,8 @@ import java.util.List;
  * Los @JsonProperty en whatsAppMessage e isFeatured fuerzan ese nombre de campo exacto
  * (sin ellos Jackson los serializaría como "whatsAppMessage"/"featured" distinto al contrato).
  *
- * youtubeUrl se agregó AL FINAL del orden (después de isFeatured) a propósito: es un campo
- * nuevo que no existía en el contrato golden original, así que no se inserta en el medio para
- * no correr de lugar ningún campo existente.
+ * Los campos opcionales nuevos se agregan AL FINAL del orden a propósito: no existían en el
+ * contrato golden original y así no corren de lugar ningún campo existente.
  */
 @JsonPropertyOrder({
     "id", "title", "description", "category", "propertyType",
@@ -35,7 +34,7 @@ import java.util.List;
     "bedrooms", "bathrooms", "squareMeters", "landSize", "capacity",
     "status", "whatsAppMessage", "createdAt", "coverImageUrl",
     "images", "amenities", "seasonPrices", "availability", "isFeatured",
-    "youtubeUrl"
+    "youtubeUrl", "googleMapsUrl"
 })
 public record PropertyDto(
     int id,
@@ -63,7 +62,8 @@ public record PropertyDto(
     List<PropertySeasonPriceDto> seasonPrices,
     List<PropertyAvailabilityDto> availability,
     @JsonProperty("isFeatured") boolean isFeatured,
-    String youtubeUrl
+    String youtubeUrl,
+    String googleMapsUrl
 ) {
     // Una imagen de la propiedad. isCover marca la portada. @JsonProperty fuerza el nombre
     // "isCover" en el JSON (Jackson por defecto lo serializaría como "cover").

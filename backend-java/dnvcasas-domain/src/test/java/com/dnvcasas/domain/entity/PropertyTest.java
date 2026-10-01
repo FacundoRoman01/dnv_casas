@@ -31,9 +31,8 @@ import static org.junit.jupiter.api.Assertions.*;
  *
  * OJO: acá NO se ve el bug de "Duplicar" (era de persistencia); eso lo caza WriteFlowIT.
  *
- * Nota: create()/update() reciben youtubeUrl como último parámetro. En estos tests
- * se pasa null salvo que el test esté probando específicamente esa funcionalidad,
- * ya que es un campo opcional y no afecta las reglas que se están verificando acá.
+ * Nota: create()/update() reciben youtubeUrl y googleMapsUrl al final. En estos
+ * tests se pasan null salvo que se pruebe específicamente esa funcionalidad.
  */
 class PropertyTest {
 
@@ -49,7 +48,7 @@ class PropertyTest {
                 1, "Centro",
                 Money.from(n("85000"), "ARS", "por noche"),
                 new PropertySpecs(2, 1, 4, n("65"), ""),
-                "Hola", null);
+                "Hola", null, null);
     }
 
     // Recién creada arranca ACTIVE y sin destacar.
@@ -67,7 +66,7 @@ class PropertyTest {
     void create_invalidTitle_throws(String title) {
         assertThrows(DomainException.class, () -> Property.create(
                 title, "desc", PropertyCategory.ALQUILER, PropertyType.CASA,
-                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""), "", null));
+                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""), "", null, null));
     }
 
     // Descripción vacía -> DomainException.
@@ -75,7 +74,7 @@ class PropertyTest {
     void create_emptyDescription_throws() {
         assertThrows(DomainException.class, () -> Property.create(
                 "Titulo valido", "", PropertyCategory.ALQUILER, PropertyType.CASA,
-                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""), "", null));
+                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""), "", null, null));
     }
 
     // Intercambio CON precio viola la regla -> DomainException.
@@ -84,7 +83,7 @@ class PropertyTest {
         DomainException ex = assertThrows(DomainException.class, () -> Property.create(
                 "Casa a intercambiar", "desc", PropertyCategory.INTERCAMBIO, PropertyType.CASA,
                 1, "", Money.from(n("50000"), "ARS", "por noche"),
-                new PropertySpecs(1, 1, 2, null, ""), "", null));
+                new PropertySpecs(1, 1, 2, null, ""), "", null, null));
         assertTrue(ex.getMessage().contains("intercambio"));
     }
 
@@ -93,7 +92,7 @@ class PropertyTest {
     void create_exchangeWithoutPrice_ok() {
         Property p = Property.create(
                 "Casa a intercambiar", "desc", PropertyCategory.INTERCAMBIO, PropertyType.CASA,
-                1, "", Money.from(null, "ARS", "Intercambio"), new PropertySpecs(1, 1, 2, null, ""), "", null);
+                1, "", Money.from(null, "ARS", "Intercambio"), new PropertySpecs(1, 1, 2, null, ""), "", null, null);
         assertEquals(PropertyCategory.INTERCAMBIO, p.getCategory());
     }
 
@@ -102,9 +101,42 @@ class PropertyTest {
     void create_trimsTitleAndDescription() {
         Property p = Property.create(
                 "  Titulo  ", "  desc  ", PropertyCategory.ALQUILER, PropertyType.CASA,
-                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""), "", null);
+                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""), "", null, null);
         assertEquals("Titulo", p.getTitle());
         assertEquals("desc", p.getDescription());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "https://maps.app.goo.gl/AbCdEf123",
+            "https://www.google.com/maps/place/Costa+Esmeralda",
+            "https://www.google.com.ar/maps?q=-37.1,-56.8",
+            "https://www.google.co.uk/maps/place/London",
+            "https://goo.gl/maps/AbCdEf123"
+    })
+    void create_validGoogleMapsUrl_storesTrimmed(String googleMapsUrl) {
+        Property p = Property.create(
+                "Casa con ubicación", "Descripción", PropertyCategory.ALQUILER, PropertyType.CASA,
+                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""),
+                "", null, "  " + googleMapsUrl + "  ");
+
+        assertEquals(googleMapsUrl, p.getGoogleMapsUrl());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "http://maps.app.goo.gl/AbCdEf123",
+            "https://example.com/maps/casa",
+            "javascript:alert(1)",
+            "https://google.com.evil.example/maps/casa"
+    })
+    void create_invalidGoogleMapsUrl_throws(String googleMapsUrl) {
+        DomainException ex = assertThrows(DomainException.class, () -> Property.create(
+                "Casa con ubicación", "Descripción", PropertyCategory.ALQUILER, PropertyType.CASA,
+                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""),
+                "", null, googleMapsUrl));
+
+        assertTrue(ex.getMessage().contains("Google Maps"));
     }
 
     // Destacar una activa la deja isFeatured=true.
@@ -168,7 +200,7 @@ class PropertyTest {
         p.delete();
         assertThrows(DomainException.class, () -> p.update(
                 "Nuevo titulo", "nueva desc", PropertyCategory.ALQUILER, PropertyType.CASA,
-                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""), "", null));
+                1, "", Money.consult(), new PropertySpecs(1, 1, 2, null, ""), "", null, null));
     }
 
     // Reactivar una pausada la vuelve ACTIVE.

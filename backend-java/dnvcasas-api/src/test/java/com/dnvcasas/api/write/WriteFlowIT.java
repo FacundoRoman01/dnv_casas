@@ -105,6 +105,7 @@ class WriteFlowIT {
         m.put("landSize", "500m2");
         m.put("capacity", 6);
         m.put("whatsAppMessage", "Hola");
+        m.put("googleMapsUrl", "https://maps.app.goo.gl/AbCdEf123");
         m.put("amenities", List.of("wifi", "pool"));
         m.put("seasonPrices", List.of(Map.of(
                 "label", "Alta", "pricePerNight", 200,
@@ -143,6 +144,8 @@ class WriteFlowIT {
         assertThat(body.get("price").asText()).isEqualTo("123456.78");
         assertThat(body.get("amenities")).hasSize(2);
         assertThat(body.get("seasonPrices")).hasSize(1);
+        assertThat(body.get("googleMapsUrl").asText())
+                .isEqualTo("https://maps.app.goo.gl/AbCdEf123");
     }
 
     // Vuelve a leer por GET lo que se creó y confirma que persistió bien,
@@ -158,6 +161,8 @@ class WriteFlowIT {
         assertThat(body.get("title").asText()).isEqualTo("Casa de prueba");
         assertThat(body.get("destinationName").asText()).isEqualTo("Bariloche");
         assertThat(body.get("seasonPrices").get(0).get("label").asText()).isEqualTo("Alta");
+        assertThat(body.get("googleMapsUrl").asText())
+                .isEqualTo("https://maps.app.goo.gl/AbCdEf123");
     }
 
     // Edita el título y reduce los amenities; verifica que el PUT devuelve 200 y
@@ -200,6 +205,8 @@ class WriteFlowIT {
         assertThat(copia.get("amenities")).hasSize(1);
         assertThat(copia.get("seasonPrices")).hasSize(1);
         assertThat(copia.get("images")).isEmpty();
+        assertThat(copia.get("googleMapsUrl").asText())
+                .isEqualTo("https://maps.app.goo.gl/AbCdEf123");
     }
 
     // La copia quedó pausada: destacarla debe dar 400 con el mensaje del dominio.

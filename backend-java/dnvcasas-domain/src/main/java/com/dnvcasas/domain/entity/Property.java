@@ -9,6 +9,7 @@ import com.dnvcasas.domain.vo.Money;
 import com.dnvcasas.domain.vo.PropertySpecs;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -43,6 +44,10 @@ public class Property {
     // No exige protocolo para tolerar que alguien pegue la URL sin "https://".
     private static final Pattern YOUTUBE_URL_PATTERN = Pattern.compile(
             "^(https?://)?(www\\.)?(youtube\\.com/watch\\?v=[\\w-]+.*|youtu\\.be/[\\w-]+.*|youtube\\.com/embed/[\\w-]+.*)$",
+            Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern GOOGLE_HOST_PATTERN = Pattern.compile(
+            "^(?:www\\.|maps\\.)?google\\.(?:com|[a-z]{2}|(?:com|co)\\.[a-z]{2})$",
             Pattern.CASE_INSENSITIVE);
 
     @Id
@@ -98,6 +103,10 @@ public class Property {
     @Column(name = "YoutubeUrl", length = 500, nullable = true)
     private String youtubeUrl;
 
+    // Link compartido de Google Maps. No requiere coordenadas ni una clave de API.
+    @Column(name = "GoogleMapsUrl", length = 1000, nullable = true)
+    private String googleMapsUrl;
+
     @Column(name = "CreatedAt", nullable = false)
     private LocalDateTime createdAt;
 
@@ -125,19 +134,21 @@ public class Property {
 
     /**
      * Fábrica para crear una propiedad nueva. Valida las reglas básicas (título,
-     * descripción, precio, formato de link de YouTube) antes de construirla, la
+     * descripción, precio y enlaces externos) antes de construirla, la
      * deja ACTIVE y sella el createdAt.
      *
      * @throws DomainException si el título/descr. faltan, si un intercambio trae
-     *                         precio, o si youtubeUrl no tiene formato válido.
+     *                         precio, o si alguno de los enlaces no es válido.
      */
     public static Property create(String title, String description,
                                   PropertyCategory category, PropertyType propertyType,
                                   int destinationId, String neighborhood,
                                   Money price, PropertySpecs specs,
-                                  String whatsAppMessage, String youtubeUrl) {
+                                  String whatsAppMessage, String youtubeUrl,
+                                  String googleMapsUrl) {
         validar(title, description, category, price);
         validarYoutubeUrl(youtubeUrl);
+        validarGoogleMapsUrl(googleMapsUrl);
 
         Property p = new Property();
         p.title = title.trim();
@@ -150,6 +161,7 @@ public class Property {
         p.specs = specs;
         p.whatsAppMessage = whatsAppMessage == null ? "" : whatsAppMessage;
         p.youtubeUrl = normalizarYoutubeUrl(youtubeUrl);
+        p.googleMapsUrl = normalizarUrlOpcional(googleMapsUrl);
         p.status = PropertyStatus.ACTIVE;
         p.isFeatured = false;
         // createdAt siempre en UTC: el contrato JSON con el frontend espera la fecha
@@ -165,11 +177,12 @@ public class Property {
     public void update(String title, String description, PropertyCategory category,
                        PropertyType propertyType, int destinationId, String neighborhood,
                        Money price, PropertySpecs specs, String whatsAppMessage,
-                       String youtubeUrl) {
+                       String youtubeUrl, String googleMapsUrl) {
         if (status == PropertyStatus.DELETED)
             throw new DomainException("No se puede modificar una propiedad eliminada");
         validar(title, description, category, price);
         validarYoutubeUrl(youtubeUrl);
+        validarGoogleMapsUrl(googleMapsUrl);
 
         this.title = title.trim();
         this.description = description.trim();
@@ -181,6 +194,7 @@ public class Property {
         this.specs = specs;
         this.whatsAppMessage = whatsAppMessage == null ? "" : whatsAppMessage;
         this.youtubeUrl = normalizarYoutubeUrl(youtubeUrl);
+        this.googleMapsUrl = normalizarUrlOpcional(googleMapsUrl);
     }
 
     // --- Métodos de la máquina de estados. Cada uno valida desde qué estado se
@@ -341,6 +355,7 @@ public void setAvailability(List<AvailabilityDay> days) {
         c.specs = specs;
         c.whatsAppMessage = whatsAppMessage;
         c.youtubeUrl = youtubeUrl;
+        c.googleMapsUrl = googleMapsUrl;
         c.status = PropertyStatus.PAUSED;
         c.isFeatured = false;
         c.createdAt = LocalDateTime.now(ZoneOffset.UTC);
@@ -376,6 +391,32 @@ public void setAvailability(List<AvailabilityDay> days) {
         return isBlank(youtubeUrl) ? null : youtubeUrl.trim();
     }
 
+    // Acepta los enlaces HTTPS que entrega Google Maps al compartir, tanto los
+    // cortos actuales como URLs completas y el formato corto heredado.
+    private static void validarGoogleMapsUrl(String googleMapsUrl) {
+        if (isBlank(googleMapsUrl)) return;
+        try {
+            URI uri = URI.create(googleMapsUrl.trim());
+            String host = uri.getHost();
+            String path = uri.getPath() == null ? "" : uri.getPath();
+            boolean enlaceCorto = "maps.app.goo.gl".equalsIgnoreCase(host);
+            boolean enlaceHeredado = "goo.gl".equalsIgnoreCase(host) && path.startsWith("/maps");
+            boolean enlaceGoogle = host != null
+                    && GOOGLE_HOST_PATTERN.matcher(host).matches()
+                    && (host.toLowerCase().startsWith("maps.") || path.startsWith("/maps"));
+            if (!"https".equalsIgnoreCase(uri.getScheme())
+                    || !(enlaceCorto || enlaceHeredado || enlaceGoogle)) {
+                throw new IllegalArgumentException();
+            }
+        } catch (IllegalArgumentException ex) {
+            throw new DomainException("El link de Google Maps no es válido. Usá el enlace HTTPS de Compartir en Google Maps");
+        }
+    }
+
+    private static String normalizarUrlOpcional(String url) {
+        return isBlank(url) ? null : url.trim();
+    }
+
     private static boolean isBlank(String s) {
         return s == null || s.isBlank();
     }
@@ -392,6 +433,7 @@ public void setAvailability(List<AvailabilityDay> days) {
     public boolean isFeatured()           { return isFeatured; }
     public String getWhatsAppMessage()    { return whatsAppMessage; }
     public String getYoutubeUrl()         { return youtubeUrl; }
+    public String getGoogleMapsUrl()      { return googleMapsUrl; }
     public LocalDateTime getCreatedAt()   { return createdAt; }
 
     // Si no hay precio guardado, devolvemos "a consultar" en vez de null, así
