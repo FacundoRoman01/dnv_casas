@@ -1,3 +1,11 @@
+<img width="1920" height="5887" alt="screencapture-2-25-198-1-5173-alquileres-2026-11-20-15_28_39" src="https://github.com/user-attachments/assets/a91ee3d3-29f6-4cc2-b580-8ce2f782358b" />
+
+<img width="1920" height="4215" alt="screencapture-2-25-198-1-5173-propiedad-46-2026-11-20-15_28_56" src="https://github.com/user-attachments/assets/cd012de0-aef0-4d13-886a-74583a16fa43" />
+
+
+
+
+
 # DNV Casas — ¿Dónde nos vamos?
 
 Catálogo de alquiler, intercambio y venta de casas. El cierre de cada operación es por WhatsApp, no hay pagos online.
