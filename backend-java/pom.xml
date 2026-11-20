@@ -28,6 +28,9 @@
     <java.version>21</java.version>
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- GitHub Actions exige Docker API >= 1.40; Spring Boot 3.3.5 gestiona
+         Testcontainers 1.19.8, cuyo cliente Docker ya no es compatible. -->
+    <testcontainers.version>1.21.4</testcontainers.version>
   </properties>
 
   <dependencyManagement>
